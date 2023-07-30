@@ -6,7 +6,7 @@ from products.models import Category, Brand, Product
 import json
 import os
 def home(request):
-    c = Category.objects.all()
+    c = Category.objects.all().exclude(num_products=0)
     p = Product.objects.all().order_by('-rating')
     b = Brand.objects.all().exclude(num_products=0)
     title = {

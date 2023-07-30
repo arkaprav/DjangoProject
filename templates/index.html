@@ -9,7 +9,7 @@
             <h4>We Are Hexashop</h4>
             <p>Awesome, Ethnic &amp; Creative Fashion Designs</p>
             <button>
-                <a href="#">Purchase Now!</a>
+                <a href="#">Shop Now!</a>
             </button>
         </center>
     </div>
@@ -32,7 +32,7 @@
           <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');">
             <h3>{{j.name}}</h3>
             <p>price: {{j.price}} INR </p>
-            <p><i class="fa fa-star" style="font-size: 12px;"></i> {{j.rating}} out of 5</p>
+            <p><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
             <p>{{j.category}}, {{j.brand}}</p>
           </div>
         {% endfor %}
@@ -53,10 +53,10 @@
     <section class="explore">
         <div class="left-content">
           <h2>Explore Our Products</h2>
-          <p>You are allowed to use this HexaShop HTML CSS template. You can feel free to modify or edit this layout. You can convert this template as any kind of ecommerce CMS theme as you wish.</p>
+          <p>Beyond our commitment to fashion, we are also deeply committed to sustainable and ethical practices. We believe in minimizing our environmental impact and promoting fair labor practices throughout our supply chain. When you choose <em>Hexashop</em>, you can feel good about supporting a company that cares about the planet and its people.</p>
           <q>Cras gravida, leo quis lobortis tristique, sem dui consequat nunc, sit malesuada.</q>
-          <p>There are 5 pages included in this HexaShop Template and we are providing it to you for absolutely free of charge at our TemplateMo website. Quam, aliquet non enim tempus nulla.</p>
-          <p>Please tell your friends about our great website. Thank you. Venenatis vitae risus eu pretium. Etiam lacinia efficitur nisi at facilisis. Curabitur id suscipit urna sem.</p>
+          <p>We are dedicated to maintaining the highest standards of craftsmanship and ensuring that every garment that leaves our facilities is of impeccable quality. Our rigorous quality control processes ensure that our products exceed the expectations of our valued customers.</p>
+          <p>Discover the latest trends and timeless classics with [Garments Company Name]. Experience fashion redefined.</p>
           <button>
             <a href="#">Discover More</a>
           </button>
@@ -86,4 +86,14 @@
         var a = "{{title}}";
       </script>
       <script src="{% static 'js/nav.js' %}"></script>
+{% endblock %}
+{% block categories %}
+      {% for i in c %}
+        <li><a href="#">{{i.name}}</a></li>
+      {% endfor %}
+{% endblock %}
+{% block brands %}
+      {% for j in b %}
+        <li><a href="#">{{j.name}}</a></li>
+      {% endfor %}
 {% endblock %}
