@@ -1,0 +1,270 @@
+*, html, body{
+    margin: 0px;
+    padding: 0px;
+    overflow-x:auto;
+    font-family: 'Poppins', sans-serif;
+}
+header nav{
+    width: 100%;
+}
+header nav a{
+    float:left;
+    margin: 10px 80px;
+}
+header nav ul {
+    float: right;
+    display: flex;
+    margin: 27px 80px;
+}
+header nav ul li a{
+    font-size: 18px;
+    margin: 0px 20px;
+}
+li, a{
+    text-decoration: none;
+    color: rgb(128, 128, 128);
+}
+.active a{
+    color: black;
+}
+a:hover{
+    color:black;
+}
+.menu-trigger{
+    display: none;
+}
+.thumb-home center{
+    background-image: linear-gradient(rgba(0, 0, 0, 0.41), rgba(0, 0, 0, .41)), url('../img/hero.jpg');
+}
+.thumb-contact center{
+    background-image: linear-gradient(rgba(0, 0, 0, 0.41), rgba(0, 0, 0, .41)), url('../img/contact.jpg');
+}
+.thumb-home center,.thumb-contact center {
+    background-size: 100% 600px;
+    background-repeat: no-repeat;
+    max-height: 600px;
+    padding-top: 200px;
+    padding-bottom: 200px;
+    margin-bottom: 20px;
+    display: block;
+}
+.thumb-home center h4, .thumb-contact center h4{
+    font-size: 52px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.thumb-home center p{
+    font-size: 18px;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+button{
+    background-color: transparent;
+    padding: 10px 20px;
+    border: 2px solid white;
+}
+.thumb-home center button:hover{
+    background-color: white;
+}
+.thumb-home center button a{
+    color:#fff;
+    font-size: 18px;
+}
+.thumb-home center button:hover a,
+.thumb-home center button:hover a:hover{
+    color: black;
+}
+.explore .left-content{
+    float: left;
+    width: 40%;
+    margin: 20px 80px;
+}
+.explore .left-content p {
+    color: #aaa;
+    margin: 25px 2px;
+    font-size: 14px;
+    font-weight: 500;
+}
+.explore .left-content button{
+    background-color: transparent;
+    padding: 10px 20px;
+    border: 2px solid black;
+}
+.explore .left-content button a{
+    color:black;
+    font-size: 18px;
+}
+.explore .left-content button:hover{
+    background-color: black;
+}
+.explore .left-content button:hover a,
+.explore .left-content button:hover a:hover{
+    color: white;
+}
+q{
+    font-style: italic;
+    font-size: 14px;
+    font-weight: 500;
+}
+.explore .right-content{
+    float: right;
+    margin: 20px 80px;
+}
+.explore .right-content .top,
+.explore .right-content .bottom{
+    display: flex;
+}
+.explore .right-content .top center{
+    width: 200px;
+    color: black;
+    background-color: #f8f8f8;
+    padding-top: 19%;
+    padding-bottom: 0px;
+    margin: 10px;
+    max-height: max-content;
+}
+h4{
+    font-size: 20px;
+}
+h2{
+    font-size: 34px;
+}
+span{
+    color: #aaa;
+    font-style: italic;
+    font-size: 14px;
+}
+.explore .right-content .top figure{
+    margin: 10px;
+    height: 200px;
+    overflow-y: hidden;
+}
+.explore .right-content .top figure img{
+    height: 200px;
+}
+.contact-us,.subscribe{
+    display: flex;
+    padding: 50px 0px;
+}
+.contact-us .map,
+.subscribe .info{
+    margin: 20px 0px;
+    margin-left: 80px;
+}
+.subscribe .info{
+    display: flex;
+}
+.subscribe .info div {
+    margin: 0px 20px;
+}
+.subscribe .info li{
+    color: black;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 10px 0px;
+}
+.subscribe .info li span{
+    color: #aaa;
+    font-weight: 100;
+    font-size: 10px;
+}
+.subscribe .container{width:40%;}
+.contact-us .map iframe{
+    width: 600px;
+    height: 400px;
+}
+.contact-us .container,
+.subscribe .container{
+    margin: 20px 0px;
+    margin-left: 80px;
+}
+.contact-us .container form .top,
+.subscribe .container form .top{
+    display: flex;
+    justify-content: space-between;
+}
+.contact-us .container form fieldset,
+.subscribe .container form fieldset{
+    margin: 10px;
+    border: 1px solid #fff;
+}
+.contact-us .container form fieldset > *,
+.subscribe .container form fieldset > *{
+    min-width: 220px;
+    padding: 10px 20px;
+    font-size: 15px;
+    border: 1px solid #646464;
+    border-radius:30px;
+}
+.contact-us .container form fieldset button,
+.subscribe .container form fieldset button{
+    min-width: 30px;
+    color: white;
+    background-color: black;
+    padding: 5px 10px;
+}
+.container .items{
+    display: flex;
+    justify-content: center;
+    margin: 10px 80px;
+}
+.container .items div{
+    margin:0px 30px;
+    background-size: 260px 260px;
+    width: 220px;
+    height: 150px;
+    background-repeat: no-repeat;
+    color: white;
+    padding: 100px 20px 20px 20px;
+    text-align: center;
+}
+.container .items div span{
+    color:white;
+}
+.container .items div p{
+    font-size: 14px;
+}
+.container center{
+    background-color: transparent;
+    color: black;
+    padding: 20px 0px;
+}
+
+footer, center{
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    background-color: #2a2a2a;
+    color: white;
+    padding: 0px;
+}
+footer a{
+    color:rgb(195, 195, 195);
+}
+footer a:hover, center a:hover{
+    color:rgb(255, 255, 255);
+}
+footer .company{
+    float: left;
+    margin: 20px 80px;
+}
+footer .company *{
+    margin: 10px 0px;
+}
+footer .menu *{
+    margin: 10px 0px;
+}
+footer .menu{
+    display: flex;
+    float: right;
+    margin: 10px 80px;
+}
+footer .menu div {
+    margin: 20px;
+}
+center ul{
+    display: flex;
+    width: 10%;
+    justify-content: space-around;
+    margin: 10px 0px;
+}

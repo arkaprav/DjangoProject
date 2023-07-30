@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}
+  {{title}}
+{% endblock %}
+{% block content %}
+{% load static %}
+    <div class="thumb-home">
+        <center>
+            <h4>We Are Hexashop</h4>
+            <p>Awesome, Ethnic &amp; Creative Fashion Designs</p>
+            <button>
+                <a href="#">Purchase Now!</a>
+            </button>
+        </center>
+    </div>
+    <section class="container">
+      <center><h2>Shop By Categories</h2></center>
+      <div class="items">
+        {% for i in c %}
+          <div style="background-image:url('{{media_link}}{{i.featured_image}}');">
+            <h3>{{i.name}}</h3>
+            <p>{{i.description}}</p>
+            <span>Products: {{i.num_products}} </span><br>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="container">
+      <center><h2>Popular Products</h2></center>
+      <div class="items">
+        {% for j in p %}
+          <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');">
+            <h3>{{j.name}}</h3>
+            <p>price: {{j.price}} INR </p>
+            <p><i class="fa fa-star" style="font-size: 12px;"></i> {{j.rating}} out of 5</p>
+            <p>{{j.category}}, {{j.brand}}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="container">
+      <center><h2>Top Brands</h2></center>
+      <div class="items">
+        {% for i in b %}
+          <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{i.featured_image}}');">
+            <h3>{{i.name}}</h3>
+            <p>{{i.description}}</p>
+            <span>Products: {{i.num_products}} </span><br>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="explore">
+        <div class="left-content">
+          <h2>Explore Our Products</h2>
+          <p>You are allowed to use this HexaShop HTML CSS template. You can feel free to modify or edit this layout. You can convert this template as any kind of ecommerce CMS theme as you wish.</p>
+          <q>Cras gravida, leo quis lobortis tristique, sem dui consequat nunc, sit malesuada.</q>
+          <p>There are 5 pages included in this HexaShop Template and we are providing it to you for absolutely free of charge at our TemplateMo website. Quam, aliquet non enim tempus nulla.</p>
+          <p>Please tell your friends about our great website. Thank you. Venenatis vitae risus eu pretium. Etiam lacinia efficitur nisi at facilisis. Curabitur id suscipit urna sem.</p>
+          <button>
+            <a href="#">Discover More</a>
+          </button>
+        </div>
+        <div class="right-content">
+          <div class="top">
+            <center>
+              <h4>Leather Bags</h4>
+              <span>Latest Collection</span>
+            </center>
+            <figure>
+              <img src="{% static 'img/explore-image-01.jpg' %}" alt="website template image">
+            </figure>
+          </div>
+          <div class="top">
+            <figure>
+              <img src="{% static 'img/explore-image-02.jpg' %}" alt="website template image">
+            </figure>
+            <center>
+              <h4>Different Types</h4>
+              <span>Over 304 Products</span>
+            </center>
+          </div>
+        </div>
+      </section>
+      <script>
+        var a = "{{title}}";
+      </script>
+      <script src="{% static 'js/nav.js' %}"></script>
+{% endblock %}
