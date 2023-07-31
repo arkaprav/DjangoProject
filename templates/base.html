@@ -1,4 +1,13 @@
 {% load static %}
+{% load macros %}
+
+{% macro categories %}
+  {% block categories %}{% endblock %}
+{% endmacro %}
+
+{% macro brands %}
+  {% block brands %}{% endblock %}
+{% endmacro %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -24,12 +33,18 @@
               </li>
               <li>
                 <a href="javascript:void(0);">Categories</a>
+                <ul>
+                  {% use_macro categories %}
+                </ul>
               </li>
               <li>
                 <a href="{% url 'shop' %}">Shop</a>
               </li>
               <li>
                 <a href="javascript:void(0);">Brands</a>
+                <ul>
+                  {% use_macro brands %}
+                </ul>
               </li>
               <li>
                 <a href="{% url 'contact' %}">Contact</a>
@@ -62,13 +77,13 @@
             <div>
               <h4>Shopping &amp; Categories</h4>
               <ul>
-                {% block categories %}{% endblock %}
+                {% use_macro categories %}
               </ul>
             </div>
             <div>
               <h4>Brands</h4>
               <ul>
-                {% block brands %}{% endblock %}
+                {% use_macro brands %}
               </ul>
             </div>
             <div>

@@ -8,6 +8,7 @@ header nav{
     width: 100%;
 }
 header nav a{
+    position: relative;
     float:left;
     margin: 10px 80px;
 }
@@ -20,6 +21,26 @@ header nav ul li a{
     font-size: 18px;
     margin: 0px 20px;
 }
+header nav ul li{
+    display:block;
+}
+header nav ul li ul{
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    max-width: 200px;
+    box-shadow: 0px 8px 8px rgba(0,0,0,0.2);
+    z-index: 1;
+    margin-left: 20px;
+    padding: 0px;
+}
+header nav ul li ul a {
+    padding: 0px 2px;
+    text-decoration: none;
+    display: block;
+}
+header nav ul li ul a:hover {color: black;}
+header nav ul li:hover ul{display:block;}
 li, a{
     text-decoration: none;
     color: rgb(128, 128, 128);
@@ -55,11 +76,13 @@ a:hover{
     font-size: 52px;
     font-weight: bold;
     margin-bottom: 10px;
+    color: white;
 }
 .thumb-home center p{
     font-size: 18px;
     font-style: italic;
     margin-bottom: 20px;
+    color: white;
 }
 button{
     background-color: transparent;
