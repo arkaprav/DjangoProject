@@ -28,10 +28,11 @@
             </ul>
           </div>
         {% endif %}
+        <button id="i">Filter</button>
         <div class="categories">
           <h4>Price Range</h4>
           <div class="range">
-            <input type="range" min="1000" max="5000" class="slider" id="price-range"><output></output>
+            <input type="range" min="{{min}}" value="{{max}}" max="{{max}}" class="slider" id="price-range"><output></output>
           </div>
         </div>
       </div>

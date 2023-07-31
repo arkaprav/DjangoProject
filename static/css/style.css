@@ -319,3 +319,16 @@ center ul{
     display: flex;
     justify-content: space-between;
 }
+.products .sidebar button#i{
+    color: black;
+    background-color: transparent;
+    border: 2px solid black;
+    font-size: 15px;
+    padding: 5px 10px;
+    margin: 0px 10px 10px 120px;
+}
+.products .sidebar button#i:hover{
+    color: white;
+    background-color: black;
+    border: 2px solid black;
+}
