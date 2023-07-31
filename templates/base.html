@@ -26,7 +26,7 @@
                 <a href="javascript:void(0);">Categories</a>
               </li>
               <li>
-                <a href="javascript:void(0);">Shop</a>
+                <a href="{% url 'shop' %}">Shop</a>
               </li>
               <li>
                 <a href="javascript:void(0);">Brands</a>
@@ -47,6 +47,7 @@
           {% block content %}
             
           {% endblock %}
+          <script src="{% static 'js/nav.js' %}"></script>
         <footer>
           <div class="company">
             <div class="logo"><img src="{% static 'img/white-logo.png' %}" alt="website template image"></div>
@@ -80,8 +81,8 @@
             </div>
           </div>
         </footer>
-        <center>
-          <p>Copyright © 2023 HexaShop Co., Ltd. All Rights Reserved.<br>
+        <center class="last">
+          <p>Copyright © 2023 HexaShop Co. Ltd. All Rights Reserved.<br>
           <ul>
             <li><a href="#"><i class="fa fa-facebook"></i></a></li>
             <li><a href="#"><i class="fa fa-twitter"></i></a></li>

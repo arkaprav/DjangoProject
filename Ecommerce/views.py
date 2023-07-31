@@ -18,7 +18,23 @@ def home(request):
     }
     return render(request,'index.html',context=title)
 def contact(request):
+    c = Category.objects.all().exclude(num_products=0)
+    b = Brand.objects.all().exclude(num_products=0)
     title = {
         'title': 'Contact',
+        'c': c,
+        'b': b,
     }
     return render(request,'contact.html',context=title)
+def shop(request):
+    c = Category.objects.all().exclude(num_products=0)
+    p = Product.objects.all().order_by('-rating')
+    b = Brand.objects.all().exclude(num_products=0)
+    title = {
+        'title': 'Shop',
+        'c': c,
+        'p': p,
+        'b': b,
+        'media_link':settings.MEDIA_URL
+    }
+    return render(request,'shop.html',context=title)

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}
+  {{title}}
+{% endblock %}
+{% block content %}
+{% load static %}
+  <section>
+    <center><h2>Shopping Crate</h2></center>
+    <div class="products">
+      <div class="sidebar">
+        {% if c %}
+          <div class="categories">
+            <h4>Categories</h4>
+            <ul>
+              {% for i in c %}
+                <li><input type="checkbox" name="{{i.name}}" id="{{i.name}}" value="{{i.name}}">{{i.name}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        {% if b %}
+          <div class="categories">
+            <h4>Brands</h4>
+            <ul>
+              {% for j in b %}
+                <li><input type="checkbox" name="{{j.name}}" id="{{j.name}}" value="{{j.name}}">{{j.name}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        <div class="categories">
+          <h4>Price Range</h4>
+          <div class="range"><input type="range" name="price" id="price" min="1000" max="5000" id="price"><p id="output"><output></output></div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="items">
+          {% for j in p %}
+            <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');">
+              <h3>{{j.name}}</h3>
+              <p>price: {{j.price}} INR </p>
+              <p><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
+              <p>{{j.category}}, {{j.brand}}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    var a = "{{title}}";
+  </script>
+{% endblock %}
+{% block categories %}
+      {% for i in c %}
+        <li><a href="#">{{i.name}}</a></li>
+      {% endfor %}
+{% endblock %}
+{% block brands %}
+      {% for j in b %}
+        <li><a href="#">{{j.name}}</a></li>
+      {% endfor %}
+{% endblock %}
