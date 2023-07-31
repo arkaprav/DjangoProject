@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.conf import settings
@@ -27,8 +27,13 @@ def contact(request):
     }
     return render(request,'contact.html',context=title)
 def shop(request):
+    if request.method == 'POST':
+        data = request.POST.get('data',0)
+        if data != 0:
+            results = Product.objects.filter(price__range = ( 0, float(data)) ).values()
+            return JsonResponse(list(results),safe=False, status=200)
     c = Category.objects.all().exclude(num_products=0)
-    p = Product.objects.all().order_by('-rating')
+    p = Product.objects.all()
     b = Brand.objects.all().exclude(num_products=0)
     title = {
         'title': 'Shop',

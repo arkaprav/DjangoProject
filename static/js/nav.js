@@ -6,13 +6,38 @@ $(document).ready(function(){
             e.classList.add('active');
         }
     });
-    let i = document.getElementById('price'),
+    let i = document.getElementById('price-range'),
     o = document.querySelector('output');
 
     o.innerHTML = i.value;
 
     // use 'change' instead to see the difference in response
-    i.addEventListener('input', function () {
+    i.oninput = function () {
         o.innerHTML = i.value;
-    }, false);
+    };
+    i.onchange = function() {
+        var a = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+                'data': a,
+                'csrfmiddlewaretoken': csrftoken,
+            },
+            success: function (response) {
+                var insert = `<div class="items">`;
+                for(const key in response){
+                    let output = `<div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('${media_link}${response[key].featured_image}');">`;
+                    output += "<h3 id='name'>"+response[key].name+"</h3>";
+                    output += "<p class='price'>price: "+ response[key].price +" INR </p>";
+                    output += "<p class='rating'><i class='fa fa-star' style='font-size: 18px;'></i>"+ response[key].rating +" out of 5</p>";
+                    output += "<p><span class='category'>"+ response[key].category_id +"</span>, <span class='brand'>"+ response[key].brand_id +"</span></p>";
+                    output += "</div>";
+                    insert += output;
+                }
+                insert +=  '</div>'
+                document.getElementById('container').innerHTML = insert;
+            }
+        });
+    }
 });

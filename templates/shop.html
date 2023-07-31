@@ -13,7 +13,7 @@
             <h4>Categories</h4>
             <ul>
               {% for i in c %}
-                <li><input type="checkbox" name="{{i.name}}" id="{{i.name}}" value="{{i.name}}">{{i.name}}</li>
+                <li><input type="checkbox" name="{{i.name}}" class="categories" id="{{i.name}}" value="{{i.name}}">{{i.name}}</li>
               {% endfor %}
             </ul>
           </div>
@@ -23,32 +23,38 @@
             <h4>Brands</h4>
             <ul>
               {% for j in b %}
-                <li><input type="checkbox" name="{{j.name}}" id="{{j.name}}" value="{{j.name}}">{{j.name}}</li>
+                <li><input type="checkbox" name="{{j.name}}" class="brands" id="{{j.name}}" value="{{j.name}}">{{j.name}}</li>
               {% endfor %}
             </ul>
           </div>
         {% endif %}
         <div class="categories">
           <h4>Price Range</h4>
-          <div class="range"><input type="range" name="price" id="price" min="1000" max="5000" id="price"><p id="output"><output></output></div>
+          <div class="range">
+            <input type="range" min="1000" max="5000" class="slider" id="price-range"><output></output>
+          </div>
         </div>
       </div>
-      <div class="container">
+      <div class="container" id="container">
         <div class="items">
           {% for j in p %}
             <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');">
-              <h3>{{j.name}}</h3>
-              <p>price: {{j.price}} INR </p>
-              <p><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
-              <p>{{j.category}}, {{j.brand}}</p>
+              <h3 id="name">{{j.name}}</h3>
+              <p class="price">price: {{j.price}} INR </p>
+              <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
+              <p><span class="category">{{j.category}}</span>, <span class="brand">{{j.brand}}</span></p>
             </div>
           {% endfor %}
         </div>
       </div>
     </div>
   </section>
+  {% csrf_token %}
   <script>
     var a = "{{title}}";
+    var url = "{% url 'shop' %}";
+    var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
+    var media_link = "{{media_link}}";
   </script>
 {% endblock %}
 {% block categories %}
