@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}
+  {{title}}
+{% endblock %}
+{% block content %}
+{% load static %}
+    <div class="register_form">
+        <h2>Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            <p style="margin: 10px;padding: 10px 20px;">
+                <label for="id_username">Username:</label>
+                <input type="text" name="username" maxlength="150" autocapitalize="none" autocomplete="username" autofocus="" required="" id="id_username">
+            </p>
+            <p style="margin: 10px;padding: 10px 20px;">
+                <label for="id_password1">Password:</label>
+                <input type="password" name="password1" autocomplete="new-password" required="" id="id_password1">
+            </p>
+            <input type="submit" value="Login">
+        </form>
+        <center><p>Not Registered Yet?<a href="{% url 'register' %}"> Register Here</a></p></center>
+    </div>
+{% endblock %}
+{% block categories %}
+        {% for i in c %}
+        <li><a href="{% url 'taxonomy' i.slug %}">{{i.name}}</a></li>
+        {% endfor %}
+{% endblock %}
+{% block brands %}
+        {% for j in b %}
+        <li><a href="{% url 'taxonomy' j.slug %}">{{j.name}}</a></li>
+        {% endfor %}
+{% endblock %}

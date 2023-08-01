@@ -25,6 +25,9 @@ urlpatterns = [
     path('', views.home,name='home'),
     path('contact/', views.contact,name='contact'),
     path('shop/', views.shop,name='shop'),
+    path('register/', views.register_user,name='register'),
+    path('profile/', views.profile,name='profile'),
+    path('login/', views.login,name='login'),
     path('taxonomy/<slug:taxonomy_slug>/', views.taxonomy, name='taxonomy'),
 ]
 if settings.DEBUG:

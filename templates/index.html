@@ -15,9 +15,9 @@
     </div>
     <section class="container">
       <center><h2>Shop By Categories</h2></center>
-      <div class="items">
+      <div class="items" {% if c_center == 1 %} style="justify-content:left;; margin-left: 5px;" {% endif %}>
         {% for i in c %}
-          <div style="background-image:url('{{media_link}}{{i.featured_image}}');">
+          <div style="background-image:url('{{media_link}}{{i.featured_image}}');max-width: 360px;">
             <a href="{% url 'taxonomy' i.slug %}"><h3>{{i.name}}</h3></a>
             <p>{{i.description}}</p>
             <span>Products: {{i.num_products}} </span><br>
@@ -27,9 +27,9 @@
     </section>
     <section class="container">
       <center><h2>Popular Products</h2></center>
-      <div class="items">
+      <div class="items" {% if p_center == 1 %} style="justify-content:left;margin-left:70px;" {% endif %}>
         {% for j in p %}
-          <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');">
+          <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');max-width: 360px;">
             <h3>{{j.name}}</h3>
             <p>price: {{j.price}} INR </p>
             <p><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
@@ -40,9 +40,9 @@
     </section>
     <section class="container">
       <center><h2>Top Brands</h2></center>
-      <div class="items">
+      <div class="items" {% if b_center == 1 %} style="justify-content:left;; margin-left: 50px;" {% endif %}>
         {% for i in b %}
-          <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{i.featured_image}}');">
+          <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{i.featured_image}}');max-width: 360px;">
             <a href="{% url 'taxonomy' i.slug %}"><h3>{{i.name}}</h3></a>
             <p>{{i.description}}</p>
             <span>Products: {{i.num_products}} </span><br>
