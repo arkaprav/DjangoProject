@@ -38,6 +38,7 @@ header nav ul li ul a {
     padding: 0px 2px;
     text-decoration: none;
     display: block;
+    color: rgb(128, 128, 128);
 }
 header nav ul li ul a:hover {color: black;}
 header nav ul li:hover ul{display:block;}

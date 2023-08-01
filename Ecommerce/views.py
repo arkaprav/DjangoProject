@@ -1,5 +1,5 @@
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate
 from django.conf import settings
 from products.models import Category, Brand, Product
@@ -67,3 +67,49 @@ def shop(request):
         'media_link':settings.MEDIA_URL
     }
     return render(request,'shop.html',context=title)
+def taxonomy(request, taxonomy_slug):
+    try:
+        post = get_object_or_404(Category, slug=taxonomy_slug)
+        c = Category.objects.all().exclude(num_products=0)
+        p = Product.objects.filter(category=post)
+        pro = list(p.values())
+        brands  = []
+        for i in range(len(pro)):
+            brands.append(pro[i]['brand_id'])
+        min_value = Product.objects.aggregate(Min('price'))['price__min']
+        max_value = Product.objects.aggregate(Max('price'))['price__max']
+        b = Brand.objects.all().exclude(num_products=0)
+        y = Brand.objects.filter(id__in = brands).exclude(num_products=0)
+        title={
+            'title':post,
+            'c': c,
+            'p': p,
+            'b': b,
+            'y': y,
+            'min': int(min_value),
+            'max': int(max_value),
+            'media_link':settings.MEDIA_URL
+        }
+    except:
+        post = get_object_or_404(Brand, slug=taxonomy_slug)
+        c = Category.objects.all().exclude(num_products=0)
+        p = Product.objects.filter(brand=post)
+        pro = list(p.values())
+        cats  = []
+        for i in range(len(pro)):
+            cats.append(pro[i]['category_id'])
+        min_value = Product.objects.aggregate(Min('price'))['price__min']
+        max_value = Product.objects.aggregate(Max('price'))['price__max']
+        b = Brand.objects.all().exclude(num_products=0)
+        x = Category.objects.filter(id__in = cats).exclude(num_products=0)
+        title={
+            'title':post,
+            'c': c,
+            'p': p,
+            'b': b,
+            'x': x,
+            'min': int(min_value),
+            'max': int(max_value),
+            'media_link':settings.MEDIA_URL
+        }
+    return render(request, 'taxonomy.html', context=title)

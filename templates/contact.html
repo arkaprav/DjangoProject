@@ -86,11 +86,11 @@
 {% endblock %}
 {% block categories %}
       {% for i in c %}
-        <li><a href="#">{{i.name}}</a></li>
+        <li><a href="{% url 'taxonomy' i.slug %}">{{i.name}}</a></li>
       {% endfor %}
 {% endblock %}
 {% block brands %}
       {% for j in b %}
-        <li><a href="#">{{j.name}}</a></li>
+        <li><a href="{% url 'taxonomy' j.slug %}">{{j.name}}</a></li>
       {% endfor %}
 {% endblock %}

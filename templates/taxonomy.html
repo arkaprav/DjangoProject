@@ -8,25 +8,31 @@
     <center><h2>Shopping Crate</h2></center>
     <div class="products">
       <div class="sidebar">
-        {% if c %}
+        {% if x %}
           <div class="categories">
             <h4>Categories</h4>
             <ul>
-              {% for i in c %}
+              {% for i in x %}
                 <li><input type="checkbox" name="{{i.name}}" class="categories" id="{{i.name}}" value="{{i.name}}">{{i.name}}</li>
               {% endfor %}
             </ul>
           </div>
+          <script>
+            brands.push('{{title}}');
+          </script>
         {% endif %}
-        {% if b %}
+        {% if y %}
           <div class="categories">
             <h4>Brands</h4>
             <ul>
-              {% for j in b %}
+              {% for j in y %}
                 <li><input type="checkbox" name="{{j.name}}" class="brands" id="{{j.name}}" value="{{j.name}}">{{j.name}}</li>
               {% endfor %}
             </ul>
           </div>
+          <script>
+            categories.push('{{title}}');
+          </script>
         {% endif %}
         <button id="i">Filter</button>
         <div class="categories">

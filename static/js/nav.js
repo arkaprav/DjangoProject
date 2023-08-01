@@ -15,7 +15,6 @@ $(document).ready(function(){
     i.oninput = function () {
         o.innerHTML = i.value;
     };
-    categories = [];
     $('.categories').on('click', function() {
         if ($(this).is(':checked')) {
             // Show an alert when the checkbox is checked
@@ -30,7 +29,6 @@ $(document).ready(function(){
             }
         }
       });
-      brands = [];
     $('.brands').on('click', function() {
         if ($(this).is(':checked')) {
             // Show an alert when the checkbox is checked
@@ -46,8 +44,8 @@ $(document).ready(function(){
         }
       });
       var con = {
-        'brands':[],
-        'categories':[]
+        'brands':brands,
+        'categories':categories
       }
       $('#i').on('click', function(e){
         e.preventDefault();
@@ -94,7 +92,6 @@ $(document).ready(function(){
                 'csrfmiddlewaretoken': csrftoken,
             },
             success: function (response) {
-                console.log(response);
                 var insert = `<div class="items">`;
                 for(const key in response){
                     let output = `
