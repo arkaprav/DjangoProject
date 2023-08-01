@@ -38,9 +38,9 @@ header nav ul li ul a {
     padding: 0px 2px;
     text-decoration: none;
     display: block;
-    color: rgb(128, 128, 128);
+    color: rgb(128, 128, 128) !important;
 }
-header nav ul li ul a:hover {color: black;}
+header nav ul li ul a:hover {color: black !important;}
 header nav ul li:hover ul{display:block;}
 li, a{
     text-decoration: none;
@@ -326,6 +326,12 @@ center ul{
     padding: 120px 10px 20px 10px;
     text-align: center;
     flex: 0 0 300px;
+}
+.container .items a{
+    color: white !important;
+}
+.container .items a:hover{
+    color: rgb(128, 128, 128) !important;
 }
 .products .sidebar {
     margin: 20px 80px;

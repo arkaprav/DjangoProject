@@ -18,7 +18,7 @@
       <div class="items">
         {% for i in c %}
           <div style="background-image:url('{{media_link}}{{i.featured_image}}');">
-            <h3>{{i.name}}</h3>
+            <a href="{% url 'taxonomy' i.slug %}"><h3>{{i.name}}</h3></a>
             <p>{{i.description}}</p>
             <span>Products: {{i.num_products}} </span><br>
           </div>
@@ -43,7 +43,7 @@
       <div class="items">
         {% for i in b %}
           <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{i.featured_image}}');">
-            <h3>{{i.name}}</h3>
+            <a href="{% url 'taxonomy' i.slug %}"><h3>{{i.name}}</h3></a>
             <p>{{i.description}}</p>
             <span>Products: {{i.num_products}} </span><br>
           </div>

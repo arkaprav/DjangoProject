@@ -47,7 +47,7 @@
           {% for j in p %}
             <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');">
               <h3 id="name">{{j.name}}</h3>
-              <p class="price">price: {{j.price}} INR </p>
+              <p class="price">price: {{j.price | floatformat:"0"}} INR </p>
               <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
               <p><span class="category">{{j.category}}</span>, <span class="brand">{{j.brand}}</span></p>
             </div>
