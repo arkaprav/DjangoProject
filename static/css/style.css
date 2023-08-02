@@ -90,16 +90,14 @@ button{
     padding: 10px 20px;
     border: 2px solid white;
 }
-.thumb-home center button:hover{
-    background-color: white;
-}
-.thumb-home center button a{
+.thumb-home center a button{
     color:#fff;
     font-size: 18px;
 }
-.thumb-home center button:hover a,
-.thumb-home center button:hover a:hover{
+.thumb-home center a:hover button{
+    background-color: white;
     color: black;
+    cursor: pointer;
 }
 .explore{
     margin: 70px 0px;
@@ -115,21 +113,25 @@ button{
     font-size: 14px;
     font-weight: 500;
 }
-.explore .left-content button{
+.explore .left-content a button,
+.container center a button,
+.products .sidebar center a button{
     background-color: transparent;
     padding: 10px 20px;
     border: 2px solid black;
-}
-.explore .left-content button a{
-    color:black;
+    color: black;
     font-size: 18px;
 }
-.explore .left-content button:hover{
-    background-color: black;
+.products .sidebar center a button{
+    font-size: 15px;
+    margin: 20px 0px;
 }
-.explore .left-content button:hover a,
-.explore .left-content button:hover a:hover{
+.explore .left-content a:hover button,
+.container center a:hover button,
+.products .sidebar center a:hover button{
+    background-color: black;
     color: white;
+    cursor: pointer;
 }
 q{
     font-style: italic;
@@ -244,7 +246,7 @@ span{
     margin:0px 30px;
     background-size: 400px 400px;
     width: 400px;
-    height: 200px;
+    height: 250px;
     background-repeat: no-repeat;
     color: white;
     padding: 150px 20px 20px 20px;
@@ -266,7 +268,13 @@ span{
     color: black;
     padding: 20px 0px;
 }
-
+.container .items div center button{
+    color:white;
+    background-color: black;
+    border: 1px solid black;
+    font-size: 18px;
+    cursor: pointer;
+}
 footer, .last{
     width: 100%;
     position: relative;
@@ -320,10 +328,10 @@ center ul{
     margin:20px;
     background-size: 300px 350px;
     width: 300px;
-    height: 200px;
+    max-height: 250px;
     background-repeat: no-repeat;
     color: white;
-    padding: 120px 10px 20px 10px;
+    padding: 100px 10px 20px 10px;
     text-align: center;
     flex: 0 0 300px;
 }
@@ -337,10 +345,14 @@ center ul{
 
 .products .sidebar {
     margin: 20px 80px;
-    width: 240px;
+    max-width: 350px;
+    min-width: 200px;
 }
 .products .sidebar ul, .products .sidebar li, .products .sidebar input[type=checkbox]{
     margin: 0px 5px 5px 5px;
+}
+.products .sidebar input[type=checkbox]:hover{
+    cursor: pointer;
 }
 .products .sidebar .categories h4{
     margin: 5px 0px;
@@ -350,6 +362,9 @@ center ul{
     margin: 5px;
     display: flex;
     justify-content: space-between;
+}
+.products .sidebar .categories .range:hover{
+    cursor: pointer;
 }
 .products .sidebar button#i{
     color: black;
@@ -363,6 +378,7 @@ center ul{
     color: white;
     background-color: black;
     border: 2px solid black;
+    cursor: pointer;
 }
 .register_form{
     margin: 50px auto;

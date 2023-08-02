@@ -35,6 +35,9 @@
             <input type="range" min="{{min}}" value="{{max}}" max="{{max}}" class="slider" id="price-range"><output></output>
           </div>
         </div>
+        {% if login == 0 %}
+          <center><a href="{% url 'login' %}"><button>Log In To Purchase</button></a></center>
+        {% endif %}
       </div>
       <div class="container" id="container">
         <div class="items">
@@ -44,6 +47,9 @@
               <p class="price">price: {{j.price}} INR </p>
               <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
               <p><span class="category">{{j.category}}</span>, <span class="brand">{{j.brand}}</span></p>
+              {% if login == 1 %}
+                <center id="{{j.id}}"><button class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
+              {% endif %}
             </div>
           {% endfor %}
         </div>

@@ -14,6 +14,7 @@ def home(request):
     p_center = 0
     c_center = 0
     b_center = 0
+    login = 0
     c = Category.objects.all().exclude(num_products=0)
     p = Product.objects.all().order_by('-rating')
     b = Brand.objects.all().exclude(num_products=0)
@@ -23,6 +24,17 @@ def home(request):
         c_center = 1
     if len(list(b.values())) > 3:
         b_center = 1
+    if request.user.is_authenticated:
+        login = 1
+    elif request.COOKIES:
+        user_id = request.COOKIES.get('user_id')
+        if user_id:
+            user = User.objects.get(pk=user_id)
+            if user:
+                login(request, user)
+                login = 1
+    else:
+        login = 0
     title = {
         'title': 'Home',
         'c': c,
@@ -31,6 +43,7 @@ def home(request):
         'p_center':p_center,
         'c_center':c_center,
         'b_center':b_center,
+        'login': login,
         'media_link':settings.MEDIA_URL
     }
     return render(request,'index.html',context=title)
@@ -44,6 +57,18 @@ def contact(request):
     }
     return render(request,'contact.html',context=title)
 def shop(request):
+    login = 0
+    if request.user.is_authenticated:
+        login = 1
+    elif request.COOKIES:
+        user_id = request.COOKIES.get('user_id')
+        if user_id:
+            user = User.objects.get(pk=user_id)
+            if user:
+                login(request, user)
+                login = 1
+    else:
+        login = 0
     if request.method == 'POST':
         price = request.POST.get('price',0)
         brands = request.POST.getlist('brands[]')
@@ -80,10 +105,23 @@ def shop(request):
         'b': b,
         'min': int(min_value),
         'max': int(max_value),
+        'login': login,
         'media_link':settings.MEDIA_URL
     }
     return render(request,'shop.html',context=title)
 def taxonomy(request, taxonomy_slug):
+    login = 0
+    if request.user.is_authenticated:
+        login = 1
+    elif request.COOKIES:
+        user_id = request.COOKIES.get('user_id')
+        if user_id:
+            user = User.objects.get(pk=user_id)
+            if user:
+                login(request, user)
+                login = 1
+    else:
+        login = 0
     try:
         post = get_object_or_404(Category, slug=taxonomy_slug)
         c = Category.objects.all().exclude(num_products=0)
@@ -102,6 +140,7 @@ def taxonomy(request, taxonomy_slug):
             'p': p,
             'b': b,
             'y': y,
+            'login': login,
             'min': int(min_value),
             'max': int(max_value),
             'media_link':settings.MEDIA_URL
@@ -124,6 +163,7 @@ def taxonomy(request, taxonomy_slug):
             'p': p,
             'b': b,
             'x': x,
+            'login': login,
             'min': int(min_value),
             'max': int(max_value),
             'media_link':settings.MEDIA_URL
