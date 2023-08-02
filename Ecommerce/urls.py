@@ -29,6 +29,7 @@ urlpatterns = [
     path('profile/', views.profile,name='profile'),
     path('login/', views.login,name='login'),
     path('taxonomy/<slug:taxonomy_slug>/', views.taxonomy, name='taxonomy'),
+    path('cart/', views.cart, name='cart'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

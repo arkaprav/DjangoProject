@@ -62,6 +62,8 @@
     var url = "{% url 'shop' %}";
     var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
     var media_link = "{{media_link}}";
+    var login = "{{login}}";
+    var cart = "{% url 'cart' %}";
   </script>
 {% endblock %}
 {% block categories %}

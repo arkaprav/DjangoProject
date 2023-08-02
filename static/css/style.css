@@ -363,7 +363,7 @@ center ul{
     display: flex;
     justify-content: space-between;
 }
-.products .sidebar .categories .range:hover{
+.products .sidebar .categories .range .slider:focus{
     cursor: pointer;
 }
 .products .sidebar button#i{

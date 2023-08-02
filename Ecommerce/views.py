@@ -34,6 +34,7 @@ def home(request):
                 login(request, user)
                 login = 1
     else:
+        request.session['previous_url'] = request.get_full_path()
         login = 0
     title = {
         'title': 'Home',
@@ -68,6 +69,7 @@ def shop(request):
                 login(request, user)
                 login = 1
     else:
+        request.session['previous_url'] = request.get_full_path()
         login = 0
     if request.method == 'POST':
         price = request.POST.get('price',0)
@@ -80,24 +82,30 @@ def shop(request):
             brand = list(Brand.objects.filter(id__exact = results[i]['brand_id']).values_list()[0])
             results[i]['brand'] = brand[1]
         if price != 0:
-            if(categories != [] or brands != []):
-                answer = []
-                for i in range(len(results)):
-                    if results[i]['price'] <= float(price) and (results[i]['category'] in categories or results[i]['brand'] in brands):
-                        answer.append(results[i])
-                return JsonResponse(list(answer),safe=False, status=200)
-            else:
-                answer = []
-                for i in range(len(results)):
+            answer = []
+            for i in range(len(results)):
+                if categories != []:
+                    if results[i]['category'] in categories:
+                        if brands != []:
+                            if results[i]['brand'] in brands:
+                                if results[i]['price'] <= float(price):
+                                    answer.append(results[i])
+                        else:
+                            if results[i]['price'] <= float(price):
+                                    answer.append(results[i])
+                elif brands != []:
+                    if results[i]['brand'] in brands:
+                        if results[i]['price'] <= float(price):
+                                answer.append(results[i])
+                else:
                     if results[i]['price'] <= float(price):
                         answer.append(results[i])
-                return JsonResponse(list(answer),safe=False, status=200)         
+            return JsonResponse(list(answer),safe=False, status=200)         
     c = Category.objects.all().exclude(num_products=0)
     p = Product.objects.all()
     b = Brand.objects.all().exclude(num_products=0)
     min_value = Product.objects.aggregate(Min('price'))['price__min']
     max_value = Product.objects.aggregate(Max('price'))['price__max']
-    print(min_value, max_value)
     title = {
         'title': 'Shop',
         'c': c,
@@ -121,6 +129,7 @@ def taxonomy(request, taxonomy_slug):
                 login(request, user)
                 login = 1
     else:
+        request.session['previous_url'] = request.get_full_path()
         login = 0
     try:
         post = get_object_or_404(Category, slug=taxonomy_slug)
@@ -245,7 +254,30 @@ def profile(request):
             if user_id:
                 user = User.objects.get(pk=user_id)
                 if user:
-                    login(request, user)
+                    auth_login(request, user)
+        else:
+            request.session['previous_url'] = request.get_full_path()
+        return redirect('login')
+def cart(request):
+    if request.user.is_authenticated:
+        username = request.user.username
+        c = Category.objects.all().exclude(num_products=0)
+        b = Brand.objects.all().exclude(num_products=0)
+        title = {
+            'title': 'cart',
+            'c': c,
+            'b': b,
+            'username':username
+        }
+        
+        return render(request, 'cart.html', title)
+    else:
+        if request.COOKIES:
+            user_id = request.COOKIES.get('user_id')
+            if user_id:
+                user = User.objects.get(pk=user_id)
+                if user:
+                    auth_login(request, user)
         else:
             request.session['previous_url'] = request.get_full_path()
         return redirect('login')
