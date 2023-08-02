@@ -426,3 +426,8 @@ center ul{
 .register_form form p input:focus{
     border: 1px solid #ccc;
 }
+.container .items div center .view-cart{
+    background-color: white;
+    color:black;
+    border: 1px solid white;
+}

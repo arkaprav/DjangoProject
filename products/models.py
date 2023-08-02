@@ -38,3 +38,28 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class Items(models.Model):
+    item_id = models.TextField()
+
+class Order(models.Model):
+    order_id = models.IntegerField()
+
+class Favourite(models.Model):
+    favourite_id = models.IntegerField()
+
+class UserProfile(models.Model):
+    user_id     = models.IntegerField()
+    user_name   = models.CharField(max_length=50)
+    cart        = models.ManyToManyField(Items, blank = True)
+    orders      = models.ManyToManyField(Order, blank = True)
+    favourites  = models.ManyToManyField(Favourite, blank = True)
+    
+    def get_cart(self):
+        return ','.join([p.item_id  for p in self.cart.all()])
+    
+    def get_orders(self):
+        return ','.join([p.order_id  for p in self.orders.all()])
+    
+    def get_favourites(self):
+        return ','.join([p.favourite_id  for p in self.favourites.all()])

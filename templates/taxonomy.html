@@ -53,9 +53,17 @@
               <p class="price">price: {{j.price | floatformat:"0"}} INR </p>
               <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
               <p><span class="category">{{j.category}}</span>, <span class="brand">{{j.brand}}</span></p>
-              {% if login == 1 %}
-                <center id="{{j.id}}"><button class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
+            {% if login == 1 %}
+              {% if cart_items %}
+                {% if j.id in cart_items %}
+                  <center id="{{j.id}}"><a href="{% url 'cart' %}"></a><button class="view-cart">View Cart &rarr;</button></center>
+                {% else %}
+                  <center id="{{j.id}}"><button type="button" class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
+                {% endif %}
+              {% else %}
+                <center id="{{j.id}}"><button type="button" class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
               {% endif %}
+            {% endif %}
             </div>
           {% endfor %}
         </div>

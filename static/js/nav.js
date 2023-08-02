@@ -125,5 +125,16 @@ $(document).ready(function(){
       }
     $('.add-to-cart').on('click', function(){
         var id = $(this).attr('id');
+        $.ajax({
+            type: "POST",
+            url: cart,
+            data: {
+                'csrfmiddlewaretoken': csrftoken,
+                'id': id,
+            },
+            success: function (response) {
+                $('center#'.concat(id)).html(`<a href="${cart}"><button class="view-cart">View Cart &rarr;</button></a>`);
+            }
+        });
     });
 });

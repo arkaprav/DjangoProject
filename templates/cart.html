@@ -4,11 +4,30 @@
 {% endblock %}
 {% block content %}
 {% load static %}
-    <h1>{{username}} welcome back!</h1>
+  <table>
+    <tr>
+      <th>Action</th>
+      <th>Name</th>
+      <th>Quantity</th>
+      <th>total price</th>
+    </tr>
+    {% if cart_items %}
+      {% for i in cart_items %}
+      <tr id="{{i.id}}">
+        <td><i class="fa fa-trash"></i></td>
+        <td>{{i.name}}</td>
+        <td><input type="number" name="quantity" id="{{i.id}}" value="{{i.quantity}}" min="1" max="10"></td>
+        <td id="{{i.id}}">{{i.price}}</td>
+      </tr>
+      {% endfor %}
+    {% else %}
+      <tr>0 Items Added</tr>
+    {% endif %}
+  </table>
 {% endblock %}
 {% block categories %}
         {% for i in c %}
-        <li><a href="{% url 'taxonomy' i.slug %}">{{i.name}}</a></li>
+          <li><a href="{% url 'taxonomy' i.slug %}">{{i.name}}</a></li>
         {% endfor %}
         <script>
             var cart = "{% url 'cart' %}";

@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.conf import settings
 from django.contrib.auth.models import User
-from products.models import Category, Brand, Product
+from products.models import Category, Brand, Product, UserProfile, Items
 from django.db.models import Min, Max
 from django.contrib.auth.forms import UserCreationForm
 import json
@@ -26,6 +26,30 @@ def home(request):
         b_center = 1
     if request.user.is_authenticated:
         login = 1
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        cart_items = user_profile.get_cart()
+        item_list = cart_items.split(',')
+        keys = []
+        for i in item_list:
+            item = json.loads(i)
+            l=[int(key) for key, value in item.items()]
+            keys.append(l[0])
+        title = {
+            'title': 'Home',
+            'c': c,
+            'p': p,
+            'b': b,
+            'p_center':p_center,
+            'c_center':c_center,
+            'b_center':b_center,
+            'login': login,
+            'cart_items':keys,
+            'media_link':settings.MEDIA_URL
+        }
+        return render(request,'index.html',context=title)
     elif request.COOKIES:
         user_id = request.COOKIES.get('user_id')
         if user_id:
@@ -58,19 +82,6 @@ def contact(request):
     }
     return render(request,'contact.html',context=title)
 def shop(request):
-    login = 0
-    if request.user.is_authenticated:
-        login = 1
-    elif request.COOKIES:
-        user_id = request.COOKIES.get('user_id')
-        if user_id:
-            user = User.objects.get(pk=user_id)
-            if user:
-                login(request, user)
-                login = 1
-    else:
-        request.session['previous_url'] = request.get_full_path()
-        login = 0
     if request.method == 'POST':
         price = request.POST.get('price',0)
         brands = request.POST.getlist('brands[]')
@@ -100,27 +111,128 @@ def shop(request):
                 else:
                     if results[i]['price'] <= float(price):
                         answer.append(results[i])
-            return JsonResponse(list(answer),safe=False, status=200)         
-    c = Category.objects.all().exclude(num_products=0)
-    p = Product.objects.all()
-    b = Brand.objects.all().exclude(num_products=0)
-    min_value = Product.objects.aggregate(Min('price'))['price__min']
-    max_value = Product.objects.aggregate(Max('price'))['price__max']
-    title = {
-        'title': 'Shop',
-        'c': c,
-        'p': p,
-        'b': b,
-        'min': int(min_value),
-        'max': int(max_value),
-        'login': login,
-        'media_link':settings.MEDIA_URL
-    }
-    return render(request,'shop.html',context=title)
+            return JsonResponse(list(answer),safe=False, status=200) 
+    login = 0
+    if request.user.is_authenticated:
+        login = 1
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        c = Category.objects.all().exclude(num_products=0)
+        p = Product.objects.all()
+        b = Brand.objects.all().exclude(num_products=0)
+        min_value = Product.objects.aggregate(Min('price'))['price__min']
+        max_value = Product.objects.aggregate(Max('price'))['price__max']
+        cart_items = user_profile.get_cart()
+        item_list = cart_items.split(',')
+        keys = []
+        for i in item_list:
+            item = json.loads(i)
+            l=[int(key) for key, value in item.items()]
+            keys.append(l[0])
+            
+        title = {
+            'title': 'Shop',
+            'c': c,
+            'p': p,
+            'b': b,
+            'min': int(min_value),
+            'max': int(max_value),
+            'login': login,
+            'cart_items':keys,
+            'media_link':settings.MEDIA_URL
+        }
+        return render(request,'shop.html',context=title)
+    elif request.COOKIES:
+        user_id = request.COOKIES.get('user_id')
+        if user_id:
+            user = User.objects.get(pk=user_id)
+            if user:
+                login(request, user)
+    else:
+        request.session['previous_url'] = request.get_full_path()
+        login = 0
+        c = Category.objects.all().exclude(num_products=0)
+        p = Product.objects.all()
+        b = Brand.objects.all().exclude(num_products=0)
+        min_value = Product.objects.aggregate(Min('price'))['price__min']
+        max_value = Product.objects.aggregate(Max('price'))['price__max']
+        title = {
+            'title': 'Shop',
+            'c': c,
+            'p': p,
+            'b': b,
+            'min': int(min_value),
+            'max': int(max_value),
+            'login': login,
+            'media_link':settings.MEDIA_URL
+        }
+        return render(request,'shop.html',context=title)        
 def taxonomy(request, taxonomy_slug):
     login = 0
     if request.user.is_authenticated:
         login = 1
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        cart_items = user_profile.get_cart()
+        item_list = cart_items.split(',')
+        keys = []
+        for i in item_list:
+            item = json.loads(i)
+            l=[int(key) for key, value in item.items()]
+            keys.append(l[0])
+        try:
+            post = get_object_or_404(Category, slug=taxonomy_slug)
+            c = Category.objects.all().exclude(num_products=0)
+            p = Product.objects.filter(category=post)
+            pro = list(p.values())
+            brands  = []
+            for i in range(len(pro)):
+                brands.append(pro[i]['brand_id'])
+            min_value = Product.objects.filter(category=post).aggregate(Min('price'))['price__min']
+            max_value = Product.objects.filter(category=post).aggregate(Max('price'))['price__max']
+            b = Brand.objects.all().exclude(num_products=0)
+            y = Brand.objects.filter(id__in = brands).exclude(num_products=0)
+            title={
+                'title':post,
+                'c': c,
+                'p': p,
+                'b': b,
+                'y': y,
+                'login': login,
+                'min': int(min_value),
+                'max': int(max_value),
+                'cart_items':keys,
+                'media_link':settings.MEDIA_URL
+            }
+        except:
+            post = get_object_or_404(Brand, slug=taxonomy_slug)
+            c = Category.objects.all().exclude(num_products=0)
+            p = Product.objects.filter(brand=post)
+            pro = list(p.values())
+            cats  = []
+            for i in range(len(pro)):
+                cats.append(pro[i]['category_id'])
+            min_value = Product.objects.filter(brand=post).aggregate(Min('price'))['price__min']
+            max_value = Product.objects.filter(brand=post).aggregate(Max('price'))['price__max']
+            b = Brand.objects.all().exclude(num_products=0)
+            x = Category.objects.filter(id__in = cats).exclude(num_products=0)
+            title={
+                'title':post,
+                'c': c,
+                'p': p,
+                'b': b,
+                'x': x,
+                'login': login,
+                'min': int(min_value),
+                'max': int(max_value),
+                'cart_items':keys,
+                'media_link':settings.MEDIA_URL
+            }
+        return render(request, 'taxonomy.html', context=title)
     elif request.COOKIES:
         user_id = request.COOKIES.get('user_id')
         if user_id:
@@ -131,53 +243,53 @@ def taxonomy(request, taxonomy_slug):
     else:
         request.session['previous_url'] = request.get_full_path()
         login = 0
-    try:
-        post = get_object_or_404(Category, slug=taxonomy_slug)
-        c = Category.objects.all().exclude(num_products=0)
-        p = Product.objects.filter(category=post)
-        pro = list(p.values())
-        brands  = []
-        for i in range(len(pro)):
-            brands.append(pro[i]['brand_id'])
-        min_value = Product.objects.aggregate(Min('price'))['price__min']
-        max_value = Product.objects.aggregate(Max('price'))['price__max']
-        b = Brand.objects.all().exclude(num_products=0)
-        y = Brand.objects.filter(id__in = brands).exclude(num_products=0)
-        title={
-            'title':post,
-            'c': c,
-            'p': p,
-            'b': b,
-            'y': y,
-            'login': login,
-            'min': int(min_value),
-            'max': int(max_value),
-            'media_link':settings.MEDIA_URL
-        }
-    except:
-        post = get_object_or_404(Brand, slug=taxonomy_slug)
-        c = Category.objects.all().exclude(num_products=0)
-        p = Product.objects.filter(brand=post)
-        pro = list(p.values())
-        cats  = []
-        for i in range(len(pro)):
-            cats.append(pro[i]['category_id'])
-        min_value = Product.objects.aggregate(Min('price'))['price__min']
-        max_value = Product.objects.aggregate(Max('price'))['price__max']
-        b = Brand.objects.all().exclude(num_products=0)
-        x = Category.objects.filter(id__in = cats).exclude(num_products=0)
-        title={
-            'title':post,
-            'c': c,
-            'p': p,
-            'b': b,
-            'x': x,
-            'login': login,
-            'min': int(min_value),
-            'max': int(max_value),
-            'media_link':settings.MEDIA_URL
-        }
-    return render(request, 'taxonomy.html', context=title)
+        try:
+            post = get_object_or_404(Category, slug=taxonomy_slug)
+            c = Category.objects.all().exclude(num_products=0)
+            p = Product.objects.filter(category=post)
+            pro = list(p.values())
+            brands  = []
+            for i in range(len(pro)):
+                brands.append(pro[i]['brand_id'])
+            min_value = Product.objects.filter(category=post).aggregate(Min('price'))['price__min']
+            max_value = Product.objects.filter(category=post).aggregate(Max('price'))['price__max']
+            b = Brand.objects.all().exclude(num_products=0)
+            y = Brand.objects.filter(id__in = brands).exclude(num_products=0)
+            title={
+                'title':post,
+                'c': c,
+                'p': p,
+                'b': b,
+                'y': y,
+                'login': login,
+                'min': int(min_value),
+                'max': int(max_value),
+                'media_link':settings.MEDIA_URL
+            }
+        except:
+            post = get_object_or_404(Brand, slug=taxonomy_slug)
+            c = Category.objects.all().exclude(num_products=0)
+            p = Product.objects.filter(brand=post)
+            pro = list(p.values())
+            cats  = []
+            for i in range(len(pro)):
+                cats.append(pro[i]['category_id'])
+            min_value = Product.objects.filter(brand=post).aggregate(Min('price'))['price__min']
+            max_value = Product.objects.filter(brand=post).aggregate(Max('price'))['price__max']
+            b = Brand.objects.all().exclude(num_products=0)
+            x = Category.objects.filter(id__in = cats).exclude(num_products=0)
+            title={
+                'title':post,
+                'c': c,
+                'p': p,
+                'b': b,
+                'x': x,
+                'login': login,
+                'min': int(min_value),
+                'max': int(max_value),
+                'media_link':settings.MEDIA_URL
+            }
+        return render(request, 'taxonomy.html', context=title)
 def register_user(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -239,6 +351,11 @@ def login(request):
 def profile(request):
     if request.user.is_authenticated:
         username = request.user.username
+        userid = request.user.id
+        try:
+            user_profile = UserProfile.objects.get(user_id=userid, user_name=username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=userid, user_name=username)
         c = Category.objects.all().exclude(num_products=0)
         b = Brand.objects.all().exclude(num_products=0)
         title = {
@@ -259,17 +376,46 @@ def profile(request):
             request.session['previous_url'] = request.get_full_path()
         return redirect('login')
 def cart(request):
+    if request.method == 'POST':
+        i = request.POST.get('id')
+        a = json.dumps({i:1})
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        item = Items.objects.create(item_id = a)
+        user_profile.cart.add(item)
+        return JsonResponse("added Successfully", safe=False, status=200)
     if request.user.is_authenticated:
         username = request.user.username
         c = Category.objects.all().exclude(num_products=0)
         b = Brand.objects.all().exclude(num_products=0)
+        p = list(Product.objects.all().values())
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        cart_items = user_profile.get_cart()
+        item_list = cart_items.split(',')
+        keys = []
+        for i in item_list:
+            item = json.loads(i)
+            l = {}
+            for key, value in item.items():
+                l['id'] = key
+                l['quantity'] = value
+                for j in p:
+                    if j['id'] == int(key):
+                        l['name'] = j['name']
+                        l['price'] = value * j['price']
+            keys.append(l)
         title = {
             'title': 'cart',
             'c': c,
             'b': b,
+            'cart_items':keys,
             'username':username
         }
-        
         return render(request, 'cart.html', title)
     else:
         if request.COOKIES:

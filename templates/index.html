@@ -27,7 +27,7 @@
     </section>
     <section class="container">
       <center><h2>Popular Products</h2></center>
-      <div class="items" {% if p_center == 1 %} style="justify-content:left;margin-left:70px;" {% endif %}>
+      <div class="items" {% if p_center == 1 %} style="justify-content:left;margin-left: 70px;" {% endif %}>
         {% for j in p %}
           <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');max-width: 360px;">
             <h3>{{j.name}}</h3>
@@ -35,7 +35,15 @@
             <p><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
             <p>{{j.category}}, {{j.brand}}</p>
             {% if login == 1 %}
-              <center id="{{j.id}}"><button type="button" class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
+              {% if cart_items %}
+                {% if j.id in cart_items %}
+                  <center id="{{j.id}}"><a href="{% url 'cart' %}"></a><button class="view-cart">View Cart &rarr;</button></center>
+                {% else %}
+                  <center id="{{j.id}}"><button type="button" class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
+                {% endif %}
+              {% else %}
+                <center id="{{j.id}}"><button type="button" class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
+              {% endif %}
             {% endif %}
           </div>
         {% endfor %}
@@ -46,7 +54,7 @@
     </section>
     <section class="container">
       <center><h2>Top Brands</h2></center>
-      <div class="items" {% if b_center == 1 %} style="justify-content:left;; margin-left: 50px;" {% endif %}>
+      <div class="items" {% if b_center == 1 %} style="justify-content:left;; margin-left: 70px;" {% endif %}>
         {% for i in b %}
           <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{i.featured_image}}');max-width: 360px;">
             <a href="{% url 'taxonomy' i.slug %}"><h3>{{i.name}}</h3></a>
@@ -88,7 +96,9 @@
           </div>
         </div>
       </section>
+      {% csrf_token %}
       <script>
+        var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
         var a = "{{title}}";
         var cart = "{% url 'cart' %}";
       </script>
