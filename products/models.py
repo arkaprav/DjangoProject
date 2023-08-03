@@ -1,6 +1,7 @@
 from django.db import models
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
+import json
 
 # Create your models here.
 class Category(models.Model):
@@ -34,13 +35,13 @@ class Product(models.Model):
     price           = models.FloatField()
     rating          = models.FloatField()
     slug = AutoSlugField(populate_from='name')
-    # Other product fields
 
     def __str__(self):
         return self.name
 
 class Items(models.Model):
-    item_id = models.TextField()
+    item_id = models.IntegerField()
+    item_quantity = models.IntegerField(default=1)
 
 class Order(models.Model):
     order_id = models.IntegerField()
@@ -56,7 +57,7 @@ class UserProfile(models.Model):
     favourites  = models.ManyToManyField(Favourite, blank = True)
     
     def get_cart(self):
-        return ','.join([p.item_id  for p in self.cart.all()])
+        return ','.join([json.dumps({p.item_id: p.item_quantity})  for p in self.cart.all()])
     
     def get_orders(self):
         return ','.join([p.order_id  for p in self.orders.all()])

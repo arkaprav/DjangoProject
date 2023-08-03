@@ -15,7 +15,7 @@ class UserProfile_Admin(admin.ModelAdmin):
     list_display = ('user_id','user_name','get_cart','get_orders','get_favourites')
 
 class Items_Admin(admin.ModelAdmin):
-    list_display = ('item_id',)
+    list_display = ('item_id', 'item_quantity')
     
 admin.site.register(Category, Category_Admin)
 admin.site.register(Brand, Brand_Admin)

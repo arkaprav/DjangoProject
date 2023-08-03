@@ -30,13 +30,11 @@ def home(request):
             user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         except:
             user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-        cart_items = user_profile.get_cart()
-        item_list = cart_items.split(',')
+        item_list = user_profile.cart.all()
         keys = []
-        for i in item_list:
-            item = json.loads(i)
-            l=[int(key) for key, value in item.items()]
-            keys.append(l[0])
+        if len(item_list) != 0:
+            for i in item_list:
+                keys.append(i.item_id)
         title = {
             'title': 'Home',
             'c': c,
@@ -87,7 +85,19 @@ def shop(request):
         brands = request.POST.getlist('brands[]')
         categories = request.POST.getlist('categories[]')
         results = list(Product.objects.all().values())
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        item_list = user_profile.cart.all()
+        keys = []
+        if len(item_list) != 0:
+            for i in item_list:
+                keys.append(i.item_id)
         for i in range(len(results)):
+            results[i]['cart'] = 0
+            if results[i]['id'] in keys:
+                results[i]['cart'] = 1
             category = list(Category.objects.filter(id__exact = results[i]['category_id']).values_list()[0])
             results[i]['category'] = category[1]
             brand = list(Brand.objects.filter(id__exact = results[i]['brand_id']).values_list()[0])
@@ -124,14 +134,11 @@ def shop(request):
         b = Brand.objects.all().exclude(num_products=0)
         min_value = Product.objects.aggregate(Min('price'))['price__min']
         max_value = Product.objects.aggregate(Max('price'))['price__max']
-        cart_items = user_profile.get_cart()
-        item_list = cart_items.split(',')
+        item_list = user_profile.cart.all()
         keys = []
-        for i in item_list:
-            item = json.loads(i)
-            l=[int(key) for key, value in item.items()]
-            keys.append(l[0])
-            
+        if len(item_list) != 0:
+            for i in item_list:
+                keys.append(i.item_id)
         title = {
             'title': 'Shop',
             'c': c,
@@ -177,13 +184,11 @@ def taxonomy(request, taxonomy_slug):
             user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         except:
             user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-        cart_items = user_profile.get_cart()
-        item_list = cart_items.split(',')
+        item_list = user_profile.cart.all()
         keys = []
-        for i in item_list:
-            item = json.loads(i)
-            l=[int(key) for key, value in item.items()]
-            keys.append(l[0])
+        if len(item_list) != 0:
+            for i in item_list:
+                keys.append(i.item_id)
         try:
             post = get_object_or_404(Category, slug=taxonomy_slug)
             c = Category.objects.all().exclude(num_products=0)
@@ -358,10 +363,16 @@ def profile(request):
             user_profile = UserProfile.objects.create(user_id=userid, user_name=username)
         c = Category.objects.all().exclude(num_products=0)
         b = Brand.objects.all().exclude(num_products=0)
+        cart = user_profile.cart.all()
+        orders = user_profile.orders.all()
+        favourites = user_profile.favourites.all()
         title = {
             'title': 'profile',
             'c': c,
             'b': b,
+            'cart': cart,
+            'orders': orders,
+            'favourites':favourites,
             'username':username
         }
         return render(request, 'profile.html', title)
@@ -377,15 +388,28 @@ def profile(request):
         return redirect('login')
 def cart(request):
     if request.method == 'POST':
-        i = request.POST.get('id')
-        a = json.dumps({i:1})
+        i = request.POST.get('id', None)
+        add = request.POST.get('dict', None)
+        delete = request.POST.get('delete', None)
         try:
             user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         except:
             user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-        item = Items.objects.create(item_id = a)
-        user_profile.cart.add(item)
-        return JsonResponse("added Successfully", safe=False, status=200)
+        if i != None:
+            item = Items.objects.create(item_id = i)
+            user_profile.cart.add(item)
+            return JsonResponse("added Successfully", safe=False, status=200)
+        if add != None:
+            js = json.loads(add)
+            l = []
+            for key, value in js.items():
+                it = Items.objects.get(id=str(key))
+                it.item_quantity = value
+                it.save()
+            return JsonResponse("added", safe=False, status=200)
+        if delete != None:
+            Items.objects.get(id=str(delete)).delete()
+            return JsonResponse("deleted", safe=False, status=200)
     if request.user.is_authenticated:
         username = request.user.username
         c = Category.objects.all().exclude(num_products=0)
@@ -395,25 +419,26 @@ def cart(request):
             user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         except:
             user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-        cart_items = user_profile.get_cart()
-        item_list = cart_items.split(',')
+        item_list = user_profile.cart.all()
+        total = 0
         keys = []
-        for i in item_list:
-            item = json.loads(i)
-            l = {}
-            for key, value in item.items():
-                l['id'] = key
-                l['quantity'] = value
+        if len(item_list) != 0:
+            for i in item_list:
+                l = {}
+                l['id'] = i.id
+                l['quantity'] = i.item_quantity
                 for j in p:
-                    if j['id'] == int(key):
+                    if j['id'] == int(i.item_id):
                         l['name'] = j['name']
-                        l['price'] = value * j['price']
-            keys.append(l)
+                        l['price'] = int(j['price'])
+                        total += i.item_quantity * l['price']
+                keys.append(l)
         title = {
             'title': 'cart',
             'c': c,
             'b': b,
             'cart_items':keys,
+            'total': total,
             'username':username
         }
         return render(request, 'cart.html', title)

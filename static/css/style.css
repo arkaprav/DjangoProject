@@ -4,6 +4,15 @@
     overflow-x:auto;
     font-family: 'Poppins', sans-serif;
 }
+.scrollbar {
+	margin-left: 22px;
+	float: left;
+	height: 300px;
+	width: 65px;
+	background: #F5F5F5;
+	overflow-y: scroll;
+	margin-bottom: 25px;
+}
 header nav{
     width: 100%;
 }
@@ -89,10 +98,10 @@ button{
     background-color: transparent;
     padding: 10px 20px;
     border: 2px solid white;
+    font-size: 18px;
 }
 .thumb-home center a button{
     color:#fff;
-    font-size: 18px;
 }
 .thumb-home center a:hover button{
     background-color: white;
@@ -374,7 +383,8 @@ center ul{
     padding: 5px 10px;
     margin: 0px 10px 10px 120px;
 }
-.products .sidebar button#i:hover{
+.products .sidebar button#i:hover,
+.bill button{
     color: white;
     background-color: black;
     border: 2px solid black;
@@ -430,4 +440,93 @@ center ul{
     background-color: white;
     color:black;
     border: 1px solid white;
+}
+
+.cart {
+    margin: 30px auto;
+    width: 70%;
+    gap: 0px;
+}
+
+.cart tr td{
+    text-align:center;
+    padding: 10px;
+}
+.cart tr th
+{
+    padding: 15px;
+    color: white;
+    background-color: black;
+    border: 1px solid black;
+}
+
+.cart tr:nth-child(2n+1) td,
+.bill div:nth-child(2n+1) {
+    background-color:#c7c7c7;
+}
+.cart tr:nth-child(2n) td,
+.bill div:nth-child(2n) {
+    background-color:#f0f0f0;
+}
+.cart tr td input[type=number]{
+    width: 30px;
+    height: 20px;
+    padding: 2px 7px;
+    color: rgb(71, 71, 71);
+}
+.update{
+    float: right;
+    margin-right: 230px;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    margin-bottom: 30px;
+    margin-top: -20px;
+}
+.bill {
+    float:left;
+    margin: 30px 0px;
+    margin-left: 230px;
+    width: 30%;
+    text-align: center;
+}
+.bill div{
+    padding: 10px 20px;
+}
+.bill div p:first-child{
+    float: left;
+    margin-left: 20px;
+}
+.bill div p:last-child{
+    float: right;
+    margin-right: 20px;
+}
+.bill h3{
+    background-color: black;
+    color: white;
+    font-size: 20px;
+    padding: 15px;
+}
+.bill div span{
+    padding: 0px 5px;
+    text-decoration: none;
+    font-style: normal;
+    font-size: 18px;
+    color: black;
+}
+.bill button{
+    width: 100%;
+    margin: 10px 0px;
+}
+.empty{
+    margin: 5px auto;
+    width: 67.8%;
+    text-align: center;
+    background-color: #f7f7f7;
+    padding: 15px;
+    margin-top: -30px;
+    margin-bottom: 222px;
+}
+.cart tbody tr td i{
+    cursor:pointer;
 }
