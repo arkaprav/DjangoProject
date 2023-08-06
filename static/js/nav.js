@@ -24,7 +24,7 @@ $(document).ready(function(){
     $('.categories').on('click', function() {
         if ($(this).is(':checked')) {
             // Show an alert when the checkbox is checked
-            if(categories.indexOf($(this).attr('name'))==-1){
+            if(categories.indexOf($(this).attr('name')) !=-1){
                 categories.push($(this).attr('name'));
             }
         }
@@ -38,7 +38,7 @@ $(document).ready(function(){
     $('.brands').on('click', function() {
         if ($(this).is(':checked')) {
             // Show an alert when the checkbox is checked
-            if(brands.indexOf($(this).attr('name'))==-1){
+            if(brands.indexOf($(this).attr('name')) !=-1){
                 brands.push($(this).attr('name'));
             }
         }
@@ -69,7 +69,7 @@ $(document).ready(function(){
                 for(const key in response){
                     let output = `
                     <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('${media_link}${response[key].featured_image}');">
-                        <h3 id="name">${response[key].name}</h3>
+                        <a href="/single-product/${response[key].slug}"><h3 id="name">${response[key].name}</h3></a>
                         <p class="price">price: ${response[key].price} INR </p>
                         <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> ${response[key].rating} out of 5</p>
                         <p><span class="category">${response[key].category}</span>, <span class="brand">${response[key].brand}</span></p>
@@ -114,7 +114,7 @@ $(document).ready(function(){
                     for(const key in response){
                         let output = `
                         <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('${media_link}${response[key].featured_image}');">
-                            <h3 id="name">${response[key].name}</h3>
+                            <a href="/single-product/${response[key].slug}"><h3 id="name">${response[key].name}</h3></a>
                             <p class="price">price: ${response[key].price} INR </p>
                             <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> ${response[key].rating} out of 5</p>
                             <p><span class="category">${response[key].category}</span>, <span class="brand">${response[key].brand}</span></p>
@@ -212,7 +212,6 @@ $(document).ready(function(){
                 let tot = parseInt($('.bill div p span#price-total').text()) - price;
                 $('.bill div#'.concat(id)).remove();
                 $('.bill div p span#price-total').text(tot);
-                // console.log($('.cart tbody').children().length);
                 if( $('.cart tbody').children().length == 1){
                     $('<div class="empty"><p>0 items Added</p></div>').insertAfter('.cart');
                     $('#update').remove();
@@ -223,5 +222,58 @@ $(document).ready(function(){
                 console.log(response);
             }
         });
+    });
+    $('#order').on('click', function(e){
+        e.preventDefault();
+        let err = $('#error');
+        err.css('display', 'block');
+        var e = '';
+        let username = $('input[name=username]').val();
+        if(username == null || username == ''){
+            e += "Invalid Username<br>";
+        }
+        let firstname = $('input[name=firstname]').val();
+        if(firstname == null || firstname == ''){
+            e += "Invalid Firstname<br>";
+        }
+        let lastname = $('input[name=lastname]').val();
+        if(lastname == null || lastname == ''){
+            e += "Invalid Lastname<br>";
+        }
+        let email = $('input[name=email]').val();
+        if(email == null || email == ''){
+            e += "Invalid Email<br>";
+        }
+        let address = $('input[name=address]').val();
+        if(address == null || address == ''){
+            e += "Invalid Address<br>";
+        }
+        let payment = $('input[name=payment]:checked').val();
+        if(payment == null){
+            e += "Choose a Payment Method<br>";
+        }
+        err.html(e);
+        var order_dict = {
+            'csrfmiddlewaretoken': csrftoken,
+            'username': username,
+            'firstname': firstname,
+            'lastname': lastname,
+            'email': email,
+            'address': address,
+            'payment': payment,
+        }
+        if((username != null || username != '') && (firstname != null || firstname != '') && (lastname  != null || lastname  != '') && (email  != null || email  != '') && (address  != null || address  != '') && payment  != null){
+            $.ajax({
+                type: "POST",
+                url: order,
+                data:order_dict,
+                success: function(response){
+                    window.location = order
+                },
+                error: function(response){
+                    console.log(response);
+                }
+            })
+        }
     })
 });

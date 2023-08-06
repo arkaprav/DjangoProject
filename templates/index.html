@@ -30,7 +30,7 @@
       <div class="items" {% if p_center == 1 %} style="justify-content:left;margin-left: 70px;" {% endif %}>
         {% for j in p %}
           <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');max-width: 360px;">
-            <h3>{{j.name}}</h3>
+            <a href="{% url 'single-product' j.slug %}"><h3>{{j.name}}</h3></a>
             <p>price: {{j.price}} INR </p>
             <p><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5</p>
             <p>{{j.category}}, {{j.brand}}</p>

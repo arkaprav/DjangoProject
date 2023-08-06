@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.conf import settings
 from django.contrib.auth.models import User
-from products.models import Category, Brand, Product, UserProfile, Items
+from products.models import Category, Brand, Product, UserProfile, Items, Order
 from django.db.models import Min, Max
 from django.contrib.auth.forms import UserCreationForm
 import json
@@ -152,11 +152,29 @@ def shop(request):
         }
         return render(request,'shop.html',context=title)
     elif request.COOKIES:
-        user_id = request.COOKIES.get('user_id')
+        user_id = request.COOKIES.get('user_id', None)
         if user_id:
             user = User.objects.get(pk=user_id)
             if user:
-                login(request, user)
+                auth_login(request, user)
+        request.session['previous_url'] = request.get_full_path()
+        login = 0
+        c = Category.objects.all().exclude(num_products=0)
+        p = Product.objects.all()
+        b = Brand.objects.all().exclude(num_products=0)
+        min_value = Product.objects.aggregate(Min('price'))['price__min']
+        max_value = Product.objects.aggregate(Max('price'))['price__max']
+        title = {
+            'title': 'Shop',
+            'c': c,
+            'p': p,
+            'b': b,
+            'min': int(min_value),
+            'max': int(max_value),
+            'login': login,
+            'media_link':settings.MEDIA_URL
+        }
+        return render(request,'shop.html',context=title)
     else:
         request.session['previous_url'] = request.get_full_path()
         login = 0
@@ -348,7 +366,7 @@ def login(request):
     c = Category.objects.all().exclude(num_products=0)
     b = Brand.objects.all().exclude(num_products=0)
     title = {
-        'title': 'login',
+        'title': 'Login',
         'c': c,
         'b': b,
     }
@@ -363,11 +381,10 @@ def profile(request):
             user_profile = UserProfile.objects.create(user_id=userid, user_name=username)
         c = Category.objects.all().exclude(num_products=0)
         b = Brand.objects.all().exclude(num_products=0)
-        cart = user_profile.cart.all()
         orders = user_profile.orders.all()
         favourites = user_profile.favourites.all()
         title = {
-            'title': 'profile',
+            'title': 'Profile',
             'c': c,
             'b': b,
             'cart': cart,
@@ -434,7 +451,7 @@ def cart(request):
                         total += i.item_quantity * l['price']
                 keys.append(l)
         title = {
-            'title': 'cart',
+            'title': 'Cart',
             'c': c,
             'b': b,
             'cart_items':keys,
@@ -452,3 +469,135 @@ def cart(request):
         else:
             request.session['previous_url'] = request.get_full_path()
         return redirect('login')
+def checkout(request):
+    if request.user.is_authenticated:
+        username = request.user.username
+        c = Category.objects.all().exclude(num_products=0)
+        b = Brand.objects.all().exclude(num_products=0)
+        p = list(Product.objects.all().values())
+        user = User.objects.get(username = request.user.username)
+        user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        item_list = user_profile.cart.all()
+        total = 0
+        keys = []
+        if len(item_list) != 0:
+            for i in item_list:
+                l = {}
+                l['id'] = i.id
+                l['quantity'] = i.item_quantity
+                for j in p:
+                    if j['id'] == int(i.item_id):
+                        l['name'] = j['name']
+                        l['price'] = int(j['price'])
+                        total += i.item_quantity * l['price']
+                keys.append(l)
+        title = {
+            'title': 'Checkout',
+            'c': c,
+            'b': b,
+            'cart_items':keys,
+            'total': total,
+            'username':username,
+            'user':user
+        }
+        return render(request, 'checkout.html', title)
+    else:
+        if request.COOKIES:
+            user_id = request.COOKIES.get('user_id')
+            if user_id:
+                user = User.objects.get(pk=user_id)
+                if user:
+                    auth_login(request, user)
+        else:
+            request.session['previous_url'] = request.get_full_path()
+        return redirect('login')
+def order_placed(request):
+    if request.method == "POST":
+        username = request.POST.get('username', None)
+        firstname = request.POST.get('firstname', None)
+        lastname = request.POST.get('lastname', None)
+        email = request.POST.get('email',None)
+        address = request.POST.get('address', None)
+        payment = request.POST.get('payment', None)
+        user = User.objects.get(username = request.user.username)
+        user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        user.username = username
+        user.first_name = firstname
+        user.last_name = lastname
+        user.email = email
+        user.save()
+        order = Order.objects.create(user_id = request.user.id,PaymentStatus = payment,Address = address)
+        item_list = user_profile.orders.all()
+        for i in item_list:
+            order.order_items.add(i)
+        user_profile.orders.add(order)
+        user_profile.cart.clear()
+        user_profile.save()
+        return JsonResponse("added", safe=False, status= 200)
+    if request.user.is_authenticated:
+        username = request.user.username
+        c = Category.objects.all().exclude(num_products=0)
+        b = Brand.objects.all().exclude(num_products=0)
+        title = {
+            'title': 'Cart',
+            'c': c,
+            'b': b,
+            'username':username,
+        }
+        return render(request, 'order-received.html', title)
+    else:
+        if request.COOKIES:
+            user_id = request.COOKIES.get('user_id')
+            if user_id:
+                user = User.objects.get(pk=user_id)
+                if user:
+                    auth_login(request, user)
+        else:
+            request.session['previous_url'] = request.get_full_path()
+        return redirect('login')
+def single_product(request, product_slug):
+    p = Product.objects.get( slug = product_slug)
+    c = Category.objects.all().exclude(num_products=0)
+    b = Brand.objects.all().exclude(num_products=0)
+    login = 0
+    cart = 0
+    if request.user.is_authenticated:
+        login = 1
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        item_list = user_profile.cart.all()
+        for i in item_list:
+            if p.id == i.item_id:
+                cart = 1
+    elif request.COOKIES:
+        user_id = request.COOKIES.get('user_id', None)
+        if user_id:
+            user = User.objects.get(pk=user_id)
+            if user:
+                login = 1
+                auth_login(request, user)
+                try:
+                    user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+                except:
+                    user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+                item_list = user_profile.cart.all()
+                for i in item_list:
+                    if p.id == i.item_id:
+                        cart = 1
+    else:
+        request.session['previous_url'] = request.get_full_path()
+        login = 0
+        cart = 0
+    title = {
+        'title':p.name,
+        'c': c,
+        'b': b,
+        'p': p,
+        'login': login,
+        'cart': cart,
+        'media_link': settings.MEDIA_URL
+    }
+    return render(request, 'single.html', title)
+    

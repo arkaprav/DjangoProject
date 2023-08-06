@@ -4,15 +4,6 @@
     overflow-x:auto;
     font-family: 'Poppins', sans-serif;
 }
-.scrollbar {
-	margin-left: 22px;
-	float: left;
-	height: 300px;
-	width: 65px;
-	background: #F5F5F5;
-	overflow-y: scroll;
-	margin-bottom: 25px;
-}
 header nav{
     width: 100%;
 }
@@ -483,12 +474,32 @@ center ul{
     margin-bottom: 30px;
     margin-top: -20px;
 }
-.bill {
-    float:left;
+.bill, .details {
     margin: 30px 0px;
-    margin-left: 230px;
     width: 30%;
     text-align: center;
+}
+.bill{
+    float:left;
+    margin-left: 230px;
+}
+.details{
+    float: right;
+    margin-right: 230px;
+    background-color: #f7f7f7;
+}
+.details p {
+    text-align: left;
+    padding-left: 70px;
+    font-size: 18px;
+    margin: 10px 0px;
+}
+.details p input{
+    margin-left: 20px;
+    padding: 2px 10px;
+    border: 1px solid #c7c7c7;
+    border-radius: 20px;
+    font-size: 15px;
 }
 .bill div{
     padding: 10px 20px;
@@ -501,7 +512,7 @@ center ul{
     float: right;
     margin-right: 20px;
 }
-.bill h3{
+.bill h3, .details h3{
     background-color: black;
     color: white;
     font-size: 20px;
@@ -529,4 +540,57 @@ center ul{
 }
 .cart tbody tr td i{
     cursor:pointer;
+}
+
+.bill .payment{
+    background-color: #f0f0f0 !important;
+    font-size: 18px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+.error{
+    display: none;
+    background-color: #ffffff !important;
+    padding:0px;
+    color: red;
+    font-size: 15px;
+}
+
+.thankyou{
+    width: 40%;
+    margin: 30px auto;
+    text-align: center;
+    margin-bottom: 210px;
+}
+.thankyou h3{
+    font-size: 30px;
+}
+.thankyou p{
+    font-size: 25px;
+    color: #c7c7c7;
+    font-style: italic;
+}
+.single-product{
+    display: flex;
+    justify-content: space-between;
+    margin: 30px auto;
+    width: 45%;
+}
+.info button{
+    background-color: black;
+    color: white;
+    margin: 10px 0px;
+    cursor: pointer;
+    width: 250px;
+}
+.info .view-cart{
+    background-color: #dddddd;
+    color: black;
+}
+.info h3{
+    font-size: 35px;
+}
+.info p, .info span{
+    font-size: 20px;
+    margin: 5px 0px;
 }

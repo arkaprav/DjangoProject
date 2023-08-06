@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}
+  {{title}}
+{% endblock %}
+{% block content %}
+{% load static %}
+{% csrf_token%}
+  <div class="single-product">
+    <figure>
+        <img src="{{media_link}}{{p.featured_image}}" alt="{{p.name}}-featured-image">
+    </figure>
+    <din class="info">
+        <h3>{{p.name}}</h3>
+        <p>{{p.description}}</p>
+        <p><span class="category">{{p.category}}</span>, <span class="brand">{{p.brand}}</span></p>
+        <p>Price : <b>{{p.price}}</b></p>
+        <p>Rating : <i class="fa fa-star"></i>{{p.rating}} out of 5</p>
+        {% if login == 1 %}
+            {% if cart %}
+                {% if cart == 1 %}
+                    <center id="{{p.id}}"><a href="{% url 'cart' %}"><button class="view-cart">View Cart &rarr;</button></a></center>
+                {% else %}
+                    <center id="{{p.id}}"><button type="button" class="add-to-cart" id="{{p.id}}">Add to Cart</button></center>
+                {% endif %}
+            {% else %}
+                <center id="{{p.id}}"><button type="button" class="add-to-cart" id="{{p.id}}">Add to Cart</button></center>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'login' %}"><button>Log In To Purchase</button></a>
+        {% endif %}
+  </div>
+  <script>
+    var a = "{{title}}";
+    var url = "{% url 'shop' %}";
+    var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
+    var media_link = "{{media_link}}";
+    var login = "{{login}}";
+    var cart = "{% url 'cart' %}";
+  </script>
+{% endblock %}
+{% block categories %}
+        {% for i in c %}
+          <li><a href="{% url 'taxonomy' i.slug %}">{{i.name}}</a></li>
+        {% endfor %}
+        <script>
+            var cart = "{% url 'cart' %}";
+        </script>
+{% endblock %}
+{% block brands %}
+        {% for j in b %}
+        <li><a href="{% url 'taxonomy' j.slug %}">{{j.name}}</a></li>
+        {% endfor %}
+{% endblock %}

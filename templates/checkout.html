@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}
+  {{title}}
+{% endblock %}
+{% block content %}
+{% load static %}
+{% csrf_token%}
+  <div class="bill">
+      <h3>Full Billing</h3>
+      {% for i in cart_items %}
+      <div id="{{i.id}}">
+          <p><span id="name">{{i.name}}</span>x<span id="quantity-{{i.id}}">{{i.quantity}}</span></p>
+          <p><span id="price-{{i.id}}">{% widthratio i.quantity 1 i.price %}</span></p>
+      </div>
+      {% endfor %}
+      <div id="total">
+          <p><span id="name">Total Cart Value :</span></p>
+          <p><span id="price-total">{{total}}</span></p>
+      </div>
+      <div class="payment">
+          <input type="radio" name="payment" id="cod" value="cod"> &nbsp;Cash On Delivery
+      </div>
+      <button type="button" id="order">Place order</button>
+      <div class="error" id="error">
+
+      </div>
+  </div>
+  <div class="details">
+    <h3>Personal Details</h3>
+    <p class="username">User Name : <input type="text" name="username" id="username" value="{{user.username}}"></p>
+    <p class="firstname">First Name : <input type="text" name="firstname" id="firstname" value="{{user.firstname}}"></p>
+    <p class="lastname">Last Name : <input type="text" name="lastname" id="lastname" value="{{user.lastname}}"></p>
+    <p class="email">Email : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="mail" name="email" id="email" value="{{user.email}}"></p>
+    <p class="address">Address : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="address" id="address"></p>
+  </div>
+  <script>
+    var a = null;
+    var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
+    var order = "{% url 'order-placed' %}";
+  </script>
+{% endblock %}
+{% block categories %}
+        {% for i in c %}
+          <li><a href="{% url 'taxonomy' i.slug %}">{{i.name}}</a></li>
+        {% endfor %}
+        <script>
+            var cart = "{% url 'cart' %}";
+        </script>
+{% endblock %}
+{% block brands %}
+        {% for j in b %}
+        <li><a href="{% url 'taxonomy' j.slug %}">{{j.name}}</a></li>
+        {% endfor %}
+{% endblock %}

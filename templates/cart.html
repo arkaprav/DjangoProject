@@ -43,7 +43,7 @@
         <p><span id="name">Total Cart Value :</span></p>
         <p><span id="price-total">{{total}}</span></p>
       </div>
-      <button type="button">Proceed to Checkout</button>
+      <a href="{% url 'checkout' %}"><button type="button">Proceed to Checkout</button></a>
     </div>
   {% endif %}
   <script>

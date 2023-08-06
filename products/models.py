@@ -44,7 +44,13 @@ class Items(models.Model):
     item_quantity = models.IntegerField(default=1)
 
 class Order(models.Model):
-    order_id = models.IntegerField()
+    user_id = models.IntegerField()
+    order_items =  models.ManyToManyField(Items, blank = True)
+    PaymentStatus = models.CharField(max_length=10)
+    Address = models.TextField()
+    
+    def get_order_items(self):
+        return ','.join([json.dumps({p.item_id: p.item_quantity})  for p in self.order_items.all()])
 
 class Favourite(models.Model):
     favourite_id = models.IntegerField()
@@ -60,7 +66,7 @@ class UserProfile(models.Model):
         return ','.join([json.dumps({p.item_id: p.item_quantity})  for p in self.cart.all()])
     
     def get_orders(self):
-        return ','.join([p.order_id  for p in self.orders.all()])
+        return ','.join([str(p.id)  for p in self.orders.all()])
     
     def get_favourites(self):
-        return ','.join([p.favourite_id  for p in self.favourites.all()])
+        return ','.join([str(p.favourite_id)  for p in self.favourites.all()])
