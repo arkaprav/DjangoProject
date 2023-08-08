@@ -1,5 +1,5 @@
 from django.contrib import admin
-from products.models import Category, Brand, Product, UserProfile, Items, Order
+from products.models import Category, Brand, Product, UserProfile, Items, Order, Favourite
 # # Register your models here.
 
 class Category_Admin(admin.ModelAdmin):
@@ -18,7 +18,10 @@ class Items_Admin(admin.ModelAdmin):
     list_display = ('item_id', 'item_quantity')
     
 class Order_Admin(admin.ModelAdmin):
-    list_display = ('user_id', 'get_order_items','PaymentStatus','Address')
+    list_display = ('user_id', 'get_order_items','PaymentStatus', 'Status','Address', 'Date')
+    
+class Favourite_Admin(admin.ModelAdmin):
+    list_display = ('favourite_id',)
     
 admin.site.register(Category, Category_Admin)
 admin.site.register(Brand, Brand_Admin)
@@ -26,3 +29,4 @@ admin.site.register(Product, Product_Admin)
 admin.site.register(UserProfile, UserProfile_Admin)
 admin.site.register(Items, Items_Admin)
 admin.site.register(Order, Order_Admin)
+admin.site.register(Favourite, Favourite_Admin)

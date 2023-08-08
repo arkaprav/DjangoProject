@@ -47,7 +47,13 @@ class Order(models.Model):
     user_id = models.IntegerField()
     order_items =  models.ManyToManyField(Items, blank = True)
     PaymentStatus = models.CharField(max_length=10)
+    Status = models.CharField(max_length=20,choices=(
+        ("In Progress", "In Progress"),
+        ("Cancelled", "Cancelled"),
+        ("Completed", "Completed")
+    ), default="In Progress")
     Address = models.TextField()
+    Date = models.DateTimeField(auto_now_add=True)
     
     def get_order_items(self):
         return ','.join([json.dumps({p.item_id: p.item_quantity})  for p in self.order_items.all()])

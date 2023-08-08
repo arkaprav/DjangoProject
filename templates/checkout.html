@@ -28,13 +28,13 @@
   <div class="details">
     <h3>Personal Details</h3>
     <p class="username">User Name : <input type="text" name="username" id="username" value="{{user.username}}"></p>
-    <p class="firstname">First Name : <input type="text" name="firstname" id="firstname" value="{{user.firstname}}"></p>
-    <p class="lastname">Last Name : <input type="text" name="lastname" id="lastname" value="{{user.lastname}}"></p>
+    <p class="firstname">First Name : <input type="text" name="firstname" id="firstname" value="{{user.first_name}}"></p>
+    <p class="lastname">Last Name : <input type="text" name="lastname" id="lastname" value="{{user.last_name}}"></p>
     <p class="email">Email : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="mail" name="email" id="email" value="{{user.email}}"></p>
     <p class="address">Address : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="address" id="address"></p>
   </div>
   <script>
-    var a = null;
+    var a = 'cart';
     var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
     var order = "{% url 'order-placed' %}";
   </script>

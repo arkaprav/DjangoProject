@@ -14,16 +14,16 @@
         <p>{{p.description}}</p>
         <p><span class="category">{{p.category}}</span>, <span class="brand">{{p.brand}}</span></p>
         <p>Price : <b>{{p.price}}</b></p>
-        <p>Rating : <i class="fa fa-star"></i>{{p.rating}} out of 5</p>
+        <p>Rating: <i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5 <i class="fa fa-heart {% if fav %}{% if fav == 1 %}fav-add{% endif %}{% endif %}" style="color: black;font-size: 18px;width: 20px;cursor: pointer;" id="{{p.id}}"></i></p>
         {% if login == 1 %}
             {% if cart %}
                 {% if cart == 1 %}
-                    <center id="{{p.id}}"><a href="{% url 'cart' %}"><button class="view-cart">View Cart &rarr;</button></a></center>
+                    <center id="center-{{j.id}}"><a href="{% url 'cart' %}"><button class="view-cart">View Cart &rarr;</button></a></center>
                 {% else %}
-                    <center id="{{p.id}}"><button type="button" class="add-to-cart" id="{{p.id}}">Add to Cart</button></center>
+                    <center id="center-{{j.id}}"><button type="button" class="add-to-cart" id="{{p.id}}">Add to Cart</button></center>
                 {% endif %}
             {% else %}
-                <center id="{{p.id}}"><button type="button" class="add-to-cart" id="{{p.id}}">Add to Cart</button></center>
+                <center id="center-{{j.id}}"><button type="button" class="add-to-cart" id="{{p.id}}">Add to Cart</button></center>
             {% endif %}
         {% else %}
             <a href="{% url 'login' %}"><button>Log In To Purchase</button></a>

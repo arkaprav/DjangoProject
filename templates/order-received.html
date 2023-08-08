@@ -10,14 +10,15 @@
     <p>order Received Successfully</p>
     <p>You can track your order status from your <a href="{% url 'profile' %}">profile</a></p>
   </div>
+  <script>
+    var a = 'cart';
+    var cart = "{% url 'cart' %}";
+</script>
 {% endblock %}
 {% block categories %}
         {% for i in c %}
           <li><a href="{% url 'taxonomy' i.slug %}">{{i.name}}</a></li>
         {% endfor %}
-        <script>
-            var cart = "{% url 'cart' %}";
-        </script>
 {% endblock %}
 {% block brands %}
         {% for j in b %}

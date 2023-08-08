@@ -4,7 +4,80 @@
 {% endblock %}
 {% block content %}
 {% load static %}
-    <h1>{{username}} welcome back!</h1>
+    <div class="con">
+        <div class="left">
+                <h1>Hi, {{username}}</h1>
+                <div class="content" id="content">
+                        <div class="personal-details">
+                                <h3>Personal Details</h3>
+                                <p class="username">User Name : <input type="text" name="username" id="username" value="{{user.username}}"></p>
+                                <p class="firstname">First Name : <input type="text" name="firstname" id="firstname" value="{{user.first_name}}"></p>
+                                <p class="lastname">Last Name : <input type="text" name="lastname" id="lastname" value="{{user.last_name}}"></p>
+                                <p class="email">Email : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="mail" name="email" id="email" value="{{user.email}}"></p>             
+                        </div>
+                        <button class="update" id="update-details">Update</button>
+                </div>
+        </div>
+        <div class="menu-con">
+                <p class="menu active" id="dashboard">My Dashboard</p>
+                <p class="menu" id="orders">My Orders</p>
+                <p class="menu" id="favourites">My Favourites</p>
+        </div>
+    </div>
+    <script>
+        var a = 'profile';
+        var personal = `
+        <div class="personal-details">
+                <h3>Personal Details</h3>
+                <p class="username">User Name : <input type="text" name="username" id="username" value="{{user.username}}"></p>
+                <p class="firstname">First Name : <input type="text" name="firstname" id="firstname" value="{{user.first_name}}"></p>
+                <p class="lastname">Last Name : <input type="text" name="lastname" id="lastname" value="{{user.last_name}}"></p>
+                <p class="email">Email : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="mail" name="email" id="email" value="{{user.email}}"></p>             
+        </div>
+        <button class="update" id="update-details">Update</button>`;
+        var orders = `
+        <h3 style="text-align: center; font-size: 22px;padding: 20px;">My orders</h3>
+        <table class="cart profile" id="cart">
+                <tr>
+                        <th>Items</th>
+                        <th>Payment Mode</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                </tr>
+                {% if orders %}
+                        {% for i in orders %}
+                        <tr id="{{i.id}}">
+                        <td>
+                        {% for j in i.order_items %}
+                                <p>{{j.name}} x {{j.quantity}}</p>
+                        {% endfor %}
+                        </td>
+                        <td>{{i.paymentStatus}}</td>
+                        <td>{{i.Status}}</td>
+                        <td>{{i.Date}}</td>
+                        </tr>
+                        {% endfor %}
+                {% endif %}
+        </table>
+        {% if not orders %}
+                <div class="empty">
+                <p>0 items Added</p>
+                </div>
+        {% endif %}
+        `;
+        var favourites = `
+        <h3 style="text-align: center; font-size: 22px;padding: 20px;">My Favourites</h3>
+        <div class="items">
+                {% for j in favourites %}
+                        <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{j.pic}}');">
+                        <a href="{% url 'single-product' j.slug %}"><h3 id="name">{{j.name}}</h3></a>
+                        <p class="price">price: {{j.price}} INR </p>
+                        <p class="rating"><i class="fa fa-star" style="color:white;font-size: 18px;"></i> {{j.rating}} out of 5 </p>
+                        </div>
+                {% endfor %}
+        </div>
+        `;
+    </script>
 {% endblock %}
 {% block categories %}
         {% for i in c %}
