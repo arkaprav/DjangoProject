@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 from products.models import Category, Brand, Product, UserProfile, Items, Order, Favourite
 from django.db.models import Min, Max
 from django.contrib.auth.forms import UserCreationForm
-import json
 from datetime import datetime, timedelta
+import json
 def prepare_results(request):
     results = list(Product.objects.all().values())
     keys, fav = item_list(request)
