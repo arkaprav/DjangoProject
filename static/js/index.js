@@ -9,11 +9,11 @@ $(document).ready(function(){
                 'reached': 0,
             }
         }
-        if(dict[id]['total'] != dict[id]['reached']){
+        if(dict[id]['reached'] != 0){
             let margin = $('.items#'.concat(id,' div:first-child')).css('margin-left');
-            let spec_margin = String(parseInt(margin) - 460).concat('px');
+            let spec_margin = String(parseInt(margin) + 460).concat('px');
             $('.items#'.concat(id,' div:first-child')).css('margin-left', spec_margin);
-            dict[id]['reached'] += 1;
+            dict[id]['reached'] -= 1;
         }
     });
     $('.right-arrow').on('click', function(e){
@@ -25,11 +25,11 @@ $(document).ready(function(){
                 'reached': 0,
             }
         }
-        if(dict[id]['reached'] != 0){
+        if(dict[id]['total'] != dict[id]['reached']){
             let margin = $('.items#'.concat(id,' div:first-child')).css('margin-left');
-            let spec_margin = String(parseInt(margin) + 460).concat('px');
+            let spec_margin = String(parseInt(margin) - 460).concat('px');
             $('.items#'.concat(id,' div:first-child')).css('margin-left', spec_margin);
-            dict[id]['reached'] -= 1;
+            dict[id]['reached'] += 1;
         }
     });
 })

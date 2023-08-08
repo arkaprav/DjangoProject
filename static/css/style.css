@@ -252,7 +252,7 @@ span{
     padding: 150px 20px 20px 20px;
     text-align: center;
     flex: 0 0 400px;
-    transition: all 3s;
+    transition: all 1s;
 }
 .container .items div span{
     color:white;
