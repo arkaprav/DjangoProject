@@ -4,6 +4,7 @@
 {% endblock %}
 {% block content %}
 {% load static %}
+{% csrf_token %}
     <div class="con">
         <div class="left">
                 <h1>Hi, {{username}}</h1>
@@ -81,6 +82,8 @@
                 {% endif %}
         </div>
         `;
+        var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+        var profile = "{% url 'profile' %}";
     </script>
 {% endblock %}
 {% block categories %}

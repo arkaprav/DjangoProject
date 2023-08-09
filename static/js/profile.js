@@ -16,4 +16,24 @@ $(document).ready(function(){
             $('#content').html(favourites);
         }
     })
+    $('#update-details.update').on('click', function(e){
+        e.preventDefault();
+        dict = {}
+        dict['csrfmiddlewaretoken'] = csrf_token;
+        dict['username'] = $('#username').val();
+        dict['firstname'] = $('#firstname').val();
+        dict['lastname'] = $('#lastname').val();
+        dict['email'] = $('#email').val();
+        $.ajax({
+            type: 'POST',
+            url: profile,
+            data: dict,
+            success: function(response){
+                console.log(response);
+            },
+            error: function(response){
+                console.log(response);
+            } 
+        });
+    });
 });

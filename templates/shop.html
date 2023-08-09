@@ -45,7 +45,7 @@
             <div style="background-image:linear-gradient(rgb(0,0,0,0.5),rgb(0,0,0,0.5)),url('{{media_link}}{{j.featured_image}}');">
               <a href="{% url 'single-product' j.slug %}"><h3 id="name">{{j.name}}</h3></a>
               <p class="price">price: {{j.price}} INR </p>
-              <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5 <i class="fa fa-heart {% if fav_items %}{% if j.id in fav_items %}fav-add{% endif %}{% endif %}" style="color: white;font-size: 18px;width: 20px;cursor: pointer;" id="{{j.id}}"></i></p>
+              <p class="rating"><i class="fa fa-star" style="font-size: 18px;"></i> {{j.rating}} out of 5{% if login == 1 %} <i class="fa fa-heart {% if fav_items %}{% if j.id in fav_items %}fav-add{% endif %}{% endif %}" style="color: white;font-size: 18px;width: 20px;cursor: pointer;" id="{{j.id}}">{% endif %}</i></p>
               <p><span class="category">{{j.category}}</span>, <span class="brand">{{j.brand}}</span></p>
             {% if login == 1 %}
               {% if cart_items %}

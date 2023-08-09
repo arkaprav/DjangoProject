@@ -318,6 +318,22 @@ def login(request):
     }
     return render(request, 'login.html', title)
 def profile(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', None)
+        firstname = request.POST.get('firstname', None)
+        lastname = request.POST.get('lastname', None)
+        email = request.POST.get('email', None)
+        user = User.objects.get(pk=request.user.id)
+        if username != None and username != '':
+            user.username = username
+        if firstname != None and firstname != '':
+            user.first_name = firstname
+        if lastname != None and lastname != '':
+            user.last_name = lastname
+        if email != None and email != '':
+            user.email = email
+        user.save()
+        return JsonResponse('added', safe=False, status=200)
     def order_items(order):
         p = list(Product.objects.all().values())
         orders = []
@@ -341,7 +357,6 @@ def profile(request):
                 order_items.append(items)
             data['order_items'] = order_items
             orders.append(data)
-        print(orders)
         return orders
     def fav_items(favourites):
         p = list(Product.objects.all().values())
