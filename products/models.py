@@ -5,42 +5,42 @@ import json
 
 # Create your models here.
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, db_index=True)
     description = models.TextField()
     num_products = models.PositiveIntegerField(default=0)
     featured_image  =  models.FileField(upload_to="category/", max_length = 50, null=True, default=None)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', db_index=True)
 
     def __str__(self):
         return self.name
     
 
 class Brand(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, db_index=True)
     description = models.TextField()
     num_products = models.PositiveIntegerField(default=0)
     featured_image  =  models.FileField(upload_to="brand/", max_length = 50, null=True, default=None)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', db_index=True)
 
     def __str__(self):
         return self.name
     
 
 class Product(models.Model):
-    name            = models.CharField(max_length=100)
+    name            = models.CharField(max_length=100, db_index=True)
     description     = models.TextField()
     featured_image  = models.FileField(upload_to="product/", max_length = 50, null=True, default=None)
-    category        = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
-    brand           = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
-    price           = models.FloatField()
+    category        = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
+    brand           = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL, db_index=True)
+    price           = models.FloatField(db_index=True)
     rating          = models.FloatField()
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', db_index=True)
 
     def __str__(self):
         return self.name
 
 class Items(models.Model):
-    item_id = models.IntegerField()
+    item_id = models.IntegerField(db_index=True)
     item_quantity = models.IntegerField(default=1)
 
 class Order(models.Model):
@@ -59,10 +59,10 @@ class Order(models.Model):
         return ','.join([json.dumps({p.item_id: p.item_quantity})  for p in self.order_items.all()])
 
 class Favourite(models.Model):
-    favourite_id = models.IntegerField()
+    favourite_id = models.IntegerField(db_index=True)
 
 class UserProfile(models.Model):
-    user_id     = models.IntegerField()
+    user_id     = models.IntegerField(db_index=True)
     user_name   = models.CharField(max_length=50)
     cart        = models.ManyToManyField(Items, blank = True)
     orders      = models.ManyToManyField(Order, blank = True)
