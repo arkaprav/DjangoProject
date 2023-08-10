@@ -9,6 +9,21 @@ from django.db.models import Min, Max
 from django.contrib.auth.forms import UserCreationForm
 from datetime import datetime, timedelta
 import json
+from django.core.cache import cache
+def get_category_brands():
+    if cache.has_key('category'):
+        cat = cache.get('categories')
+    else:
+        c = Category.objects.all().exclude(num_products=0)
+        cache.set('categories', c, 3600)
+        cat = cache.get('categories')
+    if cache.has_key('brands'):
+        br =  cache.get('brands')
+    else:
+        b = Brand.objects.all().exclude(num_products=0)
+        cache.set('brands', b, 3600)
+        br =  cache.get('brands')
+    return cat, br
 def prepare_results(request):
     results = list(Product.objects.all().values())
     keys, fav = item_list(request)
@@ -77,9 +92,8 @@ def home(request):
     c_center = 0
     b_center = 0
     login = 0
-    c = Category.objects.all().exclude(num_products=0)
+    c, b = get_category_brands()
     p = Product.objects.all().order_by('-rating')
-    b = Brand.objects.all().exclude(num_products=0)
     if len(list(p.values())) > 3:
         p_center = 1
     if len(list(c.values())) > 3:
@@ -102,8 +116,7 @@ def home(request):
         request.session['previous_url'] = request.get_full_path()
         return login0()
 def contact(request):
-    c = Category.objects.all().exclude(num_products=0)
-    b = Brand.objects.all().exclude(num_products=0)
+    c, b = get_category_brands()
     title = {
         'title': 'Contact',
         'c': c,
@@ -111,11 +124,10 @@ def contact(request):
     }
     return render(request,'contact.html',context=title)
 def shop(request):
+    c, b = get_category_brands()
     def login1():
         login = 1
-        c = Category.objects.all().exclude(num_products=0)
         p = Product.objects.all()
-        b = Brand.objects.all().exclude(num_products=0)
         min_value = Product.objects.aggregate(Min('price'))['price__min']
         max_value = Product.objects.aggregate(Max('price'))['price__max']
         keys, fav = item_list(request)
@@ -135,9 +147,7 @@ def shop(request):
     def login0():
         request.session['previous_url'] = request.get_full_path()
         login = 0
-        c = Category.objects.all().exclude(num_products=0)
         p = Product.objects.all()
-        b = Brand.objects.all().exclude(num_products=0)
         min_value = Product.objects.aggregate(Min('price'))['price__min']
         max_value = Product.objects.aggregate(Max('price'))['price__max']
         title = {
@@ -189,9 +199,9 @@ def shop(request):
     else:
         return login0()   
 def taxonomy(request, taxonomy_slug):
+    c, b = get_category_brands()
     def get_category(keys,fav, login):
         post = get_object_or_404(Category, slug=taxonomy_slug)
-        c = Category.objects.all().exclude(num_products=0)
         p = Product.objects.filter(category=post)
         pro = list(p.values())
         brands  = []
@@ -199,7 +209,6 @@ def taxonomy(request, taxonomy_slug):
             brands.append(pro[i]['brand_id'])
         min_value = Product.objects.filter(category=post).aggregate(Min('price'))['price__min']
         max_value = Product.objects.filter(category=post).aggregate(Max('price'))['price__max']
-        b = Brand.objects.all().exclude(num_products=0)
         y = Brand.objects.filter(id__in = brands).exclude(num_products=0)
         title={
             'title':post,
@@ -217,7 +226,6 @@ def taxonomy(request, taxonomy_slug):
         return title
     def get_brand(keys, fav, login):
         post = get_object_or_404(Brand, slug=taxonomy_slug)
-        c = Category.objects.all().exclude(num_products=0)
         p = Product.objects.filter(brand=post)
         pro = list(p.values())
         cats  = []
@@ -225,7 +233,6 @@ def taxonomy(request, taxonomy_slug):
             cats.append(pro[i]['category_id'])
         min_value = Product.objects.filter(brand=post).aggregate(Min('price'))['price__min']
         max_value = Product.objects.filter(brand=post).aggregate(Max('price'))['price__max']
-        b = Brand.objects.all().exclude(num_products=0)
         x = Category.objects.filter(id__in = cats).exclude(num_products=0)
         title={
             'title':post,
@@ -309,8 +316,7 @@ def register_user(request):
 def login(request):
     if request.method == 'POST':
         return login_req(request)
-    c = Category.objects.all().exclude(num_products=0)
-    b = Brand.objects.all().exclude(num_products=0)
+    c, b = get_category_brands()
     title = {
         'title': 'Login',
         'c': c,
@@ -382,8 +388,7 @@ def profile(request):
             user_profile = UserProfile.objects.get(user_id=userid, user_name=username)
         except:
             user_profile = UserProfile.objects.create(user_id=userid, user_name=username)
-        c = Category.objects.all().exclude(num_products=0)
-        b = Brand.objects.all().exclude(num_products=0)
+        c, b = get_category_brands()
         orders = user_profile.orders.all()
         order_items = order_items(orders)
         favourites = user_profile.favourites.all()
@@ -425,7 +430,6 @@ def cart(request):
             return JsonResponse("added Successfully", safe=False, status=200)
         if add != None:
             js = json.loads(add)
-            l = []
             for key, value in js.items():
                 it = Items.objects.get(id=str(key))
                 it.item_quantity = value
@@ -443,8 +447,7 @@ def cart(request):
             return JsonResponse("deleted", safe=False, status=200)
     if request.user.is_authenticated:
         username = request.user.username
-        c = Category.objects.all().exclude(num_products=0)
-        b = Brand.objects.all().exclude(num_products=0)
+        c, b = get_category_brands()
         p = list(Product.objects.all().values())
         try:
             user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
@@ -486,8 +489,7 @@ def cart(request):
 def checkout(request):
     if request.user.is_authenticated:
         username = request.user.username
-        c = Category.objects.all().exclude(num_products=0)
-        b = Brand.objects.all().exclude(num_products=0)
+        c, b = get_category_brands()
         p = list(Product.objects.all().values())
         user = User.objects.get(username = request.user.username)
         user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
@@ -550,8 +552,7 @@ def order_placed(request):
         return JsonResponse("added", safe=False, status= 200)
     if request.user.is_authenticated:
         username = request.user.username
-        c = Category.objects.all().exclude(num_products=0)
-        b = Brand.objects.all().exclude(num_products=0)
+        c, b = get_category_brands()
         title = {
             'title': 'Cart',
             'c': c,
@@ -571,8 +572,7 @@ def order_placed(request):
         return redirect('login')
 def single_product(request, product_slug):
     p = Product.objects.get( slug = product_slug)
-    c = Category.objects.all().exclude(num_products=0)
-    b = Brand.objects.all().exclude(num_products=0)
+    c, b = get_category_brands()
     login = 0
     cart = 0
     fav = 0
