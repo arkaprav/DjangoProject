@@ -5,16 +5,17 @@ from django.http import JsonResponse
 
 #gets cart and fav items of the user
 def getKeysAndFav(user_profile):
-    item_list = user_profile.cart.all()
-    fav_items = user_profile.favourites.all()
     keys = []
     fav = []
-    if len(item_list) != 0:
-        for i in item_list:
-            keys.append(i.item_id)
-    if len(fav_items) != 0:
-        for i in fav_items:
-            fav.append(i.favourite_id)
+    if user_profile is not None:
+        item_list = user_profile.cart.all()
+        fav_items = user_profile.favourites.all()
+        if len(item_list) != 0:
+            for i in item_list:
+                keys.append(i.item_id)
+        if len(fav_items) != 0:
+            for i in fav_items:
+                fav.append(i.favourite_id)
     return keys, fav
 
 def prepareShopContext(user_profile, c, p, b, login):
@@ -35,7 +36,7 @@ def prepareShopContext(user_profile, c, p, b, login):
     }
     return title
 
-def handleShopRequests(request, user_profile = None):
+def handleShopRequests(request, user_profile=None):
     price = request.POST.get('price',0)
     brands = request.POST.getlist('brands[]')
     categories = request.POST.getlist('categories[]')
@@ -63,16 +64,14 @@ def handleShopRequests(request, user_profile = None):
     
 def prepare_results(user_profile=None):
     results = list(Product.objects.all().values())
-    if user_profile is not None:
-        keys, fav = getKeysAndFav(user_profile)
+    keys, fav = getKeysAndFav(user_profile)
     for i in range(len(results)):
         results[i]['cart'] = 0
         results[i]['fav'] = 0
-        if user_profile is not None:
-            if results[i]['id'] in keys:
-                results[i]['cart'] = 1
-            if results[i]['id'] in fav:
-                results[i]['fav'] = 1
+        if results[i]['id'] in keys:
+            results[i]['cart'] = 1
+        if results[i]['id'] in fav:
+            results[i]['fav'] = 1
         category = list(Category.objects.filter(id__exact = results[i]['category_id']).values_list()[0])
         results[i]['category'] = category[1]
         brand = list(Brand.objects.filter(id__exact = results[i]['brand_id']).values_list()[0])

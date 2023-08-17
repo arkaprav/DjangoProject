@@ -2,6 +2,7 @@ from helpers.shop import getKeysAndFav
 from django.conf import settings
 
 def prepareHomeData(user_profile, c, p, b, login):
+    keys, fav = getKeysAndFav(user_profile)
     p_center, c_center, b_center = prepareCenters(p, c, b)
     title = {
         'title': 'Home',
@@ -12,13 +13,10 @@ def prepareHomeData(user_profile, c, p, b, login):
         'c_center':c_center,
         'b_center':b_center,
         'login': login,
+        'cart_items':keys,
+        'fav_items':fav,
         'media_link':settings.MEDIA_URL
     }
-    if login == 1:
-        keys, fav = getKeysAndFav(user_profile)
-        title['cart_items']=keys
-        title['fav_items']=fav
-    
     return title
 
 def prepareCenters(p, c, b):

@@ -50,7 +50,7 @@
             {% if login == 1 %}
               {% if cart_items %}
                 {% if j.id in cart_items %}
-                  <center id="center-{{j.id}}"><a href="{% url 'cart' %}"></a><button class="view-cart">View Cart &rarr;</button></center>
+                  <center id="center-{{j.id}}"><a href="{% url 'cart' %}"><button class="view-cart">View Cart &rarr;</button></a></center>
                 {% else %}
                   <center id="center-{{j.id}}"><button type="button" class="add-to-cart" id="{{j.id}}">Add to Cart</button></center>
                 {% endif %}

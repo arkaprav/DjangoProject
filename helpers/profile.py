@@ -20,13 +20,13 @@ def updateUserInfo(request, user):
 
 def getOrdersAndFavs(user_profile, p):
     orders = user_profile.orders.all()
-    order_items = order_items(orders, p)
+    order_items = get_order_items(orders, p)
     favourites = user_profile.favourites.all()
-    fav_items = fav_items(favourites, p)
-    return orders, fav_items
+    fav_items = get_fav_items(favourites, p)
+    return order_items, fav_items
 
 #gets user orders
-def order_items(order, p):
+def get_order_items(order, p):
     orders = []
     for i in order:
         data = {
@@ -52,7 +52,7 @@ def order_items(order, p):
 
 
 #gets users favourites
-def fav_items(favourites, p):
+def get_fav_items(favourites, p):
     favs = []
     for i in favourites:
         data = {}

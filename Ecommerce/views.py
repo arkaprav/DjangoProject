@@ -42,7 +42,7 @@ def home(request):
     p = Product.objects.all().order_by('-rating')
     if request.user.is_authenticated:
         try:
-            user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
+            user_profile = UserProfile.objects.get(user_id=request.user.id)
         except:
             user_profile = None
         title = prepareHomeData(user_profile, c, p, b, 1)
@@ -53,7 +53,7 @@ def home(request):
             if user:
                 login(request, user)
                 try:
-                    user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
+                    user_profile = UserProfile.objects.get(user_id=request.user.id)
                 except:
                     user_profile = None
                 title = prepareHomeData(user_profile, c, p, b, 1)
@@ -83,10 +83,10 @@ def shop(request):
         login = 1
         p = Product.objects.all()
         try:
-            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+            user_profile = UserProfile.objects.get(user_id=request.user.id)
         except:
-            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-        title = prepareShopContext(user_profile, c, b, p, login)
+            user_profile = UserProfile.objects.create(user_id=request.user.id)
+        title = prepareShopContext(user_profile, c, p, b, login)
         return render(request,'shop.html',context=title)
     def login0():
         request.session['previous_url'] = request.get_full_path()
@@ -109,7 +109,7 @@ def shop(request):
         user_profile = None
         if request.user.is_authenticated:
             try:
-                user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
+                user_profile = UserProfile.objects.get(user_id=request.user.id)
             except:
                 user_profile = None
         return handleShopRequests(request, user_profile)
@@ -130,7 +130,7 @@ def taxonomy(request, taxonomy_slug):
     def login1():
         login = 1
         try:
-            user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
+            user_profile = UserProfile.objects.get(user_id=request.user.id)
         except:
             user_profile = None
         keys, fav = getKeysAndFav(user_profile)
@@ -189,17 +189,18 @@ def login(request):
     }
     return render(request, 'login.html', title)
 def profile(request):
+    p = list(Product.objects.all().values())
     if request.method == 'POST':
         user = User.objects.get(pk=request.user.id)
         updateUserInfo(request,user_profile)
     if request.user.is_authenticated:
         user = User.objects.get(id = request.user.id)
         try:
-            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+            user_profile = UserProfile.objects.get(user_id=request.user.id)
         except:
-            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+            user_profile = UserProfile.objects.create(user_id=request.user.id)
         c, b = get_category_brands()
-        order_items, fav_items = getOrdersAndFavs(user_profile)
+        order_items, fav_items = getOrdersAndFavs(user_profile, p)
         title = {
             'title': 'Profile',
             'c': c,
@@ -223,18 +224,18 @@ def profile(request):
 def cart(request):
     if request.method == 'POST':
         try:
-            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+            user_profile = UserProfile.objects.get(user_id=request.user.id)
         except:
-            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+            user_profile = UserProfile.objects.create(user_id=request.user.id)
         return handleCartRequest(request, user_profile)
     if request.user.is_authenticated:
         username = request.user.username
         c, b = get_category_brands()
         p = list(Product.objects.all().values())
         try:
-            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+            user_profile = UserProfile.objects.get(user_id=request.user.id)
         except:
-            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+            user_profile = UserProfile.objects.create(user_id=request.user.id)
         item_list = user_profile.cart.all()
         keys, total = getTotalAndKeys(item_list, p)
         title = {
@@ -262,7 +263,7 @@ def checkout(request):
         c, b = get_category_brands()
         p = list(Product.objects.all().values())
         user = User.objects.get(username = request.user.username)
-        user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        user_profile = UserProfile.objects.get(user_id=request.user.id)
         item_list = user_profile.cart.all()
         keys, total = getTotalAndKeys(item_list, p)
         context = {
@@ -294,7 +295,7 @@ def order_placed(request):
         return PaymentHandler(request)
     if request.user.is_authenticated:
         username = request.user.username
-        user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        user_profile = UserProfile.objects.get(user_id=request.user.id)
         c, b = get_category_brands()
         user_profile.cart.clear()
         user_profile.save()
