@@ -135,3 +135,6 @@ STATICFILES_DIRS = [
 ]
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = "/media/"
+
+RAZOR_KEY_ID = 'rzp_test_20sCwEVYzWmpyV'
+RAZOR_KEY_SECRET = 'GsYbDyEu1cA1Qnje17xUhMGy'

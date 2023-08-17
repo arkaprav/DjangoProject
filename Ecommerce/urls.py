@@ -33,6 +33,7 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('order-placed/', views.order_placed, name='order-placed'),
     path('single-product/<slug:product_slug>', views.single_product, name='single-product'),
+    path('checkout/paymentHandler/', views.paymentHandler, name='paymentHandler'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

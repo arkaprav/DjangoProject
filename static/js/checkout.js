@@ -44,6 +44,12 @@ $(document).ready(function(){
                 url: order,
                 data:order_dict,
                 success: function(response){
+                    if(payment == 'razor'){
+                        console.log(options);
+                        var rzp1 = new Razorpay(options);
+                        rzp1.open();
+                        e.preventDefault();
+                    }
                     window.location = order
                 },
                 error: function(response){

@@ -1,8 +1,10 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
+import razorpay
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from products.models import Category, Brand, Product, UserProfile, Items, Order, Favourite
 from django.db.models import Min, Max
@@ -10,6 +12,10 @@ from django.contrib.auth.forms import UserCreationForm
 from datetime import datetime, timedelta
 import json
 from django.core.cache import cache
+global checkout_amount
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+
 def get_category_brands():
     if cache.has_key('category'):
         cat = cache.get('categories')
@@ -507,7 +513,20 @@ def checkout(request):
                         l['price'] = int(j['price'])
                         total += i.item_quantity * l['price']
                 keys.append(l)
-        title = {
+        currency = 'INR'
+        # Create a Razorpay Order
+        razorpay_order = razorpay_client.order.create(dict(amount=total*100,
+                                                        currency=currency,
+                                                        payment_capture='0'))
+    
+        # order id of newly created order.
+        razorpay_order_id = razorpay_order['id']
+        callback_url = 'paymentHandler/'
+        global checkout_amount
+        checkout_amount = int(total*100)
+        # we need to pass these details to frontend.
+        
+        context = {
             'title': 'Checkout',
             'c': c,
             'b': b,
@@ -516,7 +535,12 @@ def checkout(request):
             'username':username,
             'user':user
         }
-        return render(request, 'checkout.html', title)
+        context['razorpay_order_id'] = razorpay_order_id
+        context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+        context['razorpay_amount'] = checkout_amount
+        context['currency'] = currency
+        context['callback_url'] = callback_url
+        return render(request, 'checkout.html', context=context)
     else:
         if request.COOKIES:
             user_id = request.COOKIES.get('user_id')
@@ -627,3 +651,25 @@ def single_product(request, product_slug):
     }
     return render(request, 'single.html', title)
     
+@csrf_exempt
+def paymentHandler(request):
+    if request.method == 'POST':
+        payment_id = request.POST.get('razorpay_payment_id', '')
+        razorpay_order_id = request.POST.get('razorpay_order_id', '')
+        signature = request.POST.get('razorpay_signature', '')
+        params_dict = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        }
+        global checkout_amount
+        result = razorpay_client.utility.verify_payment_signature(
+                params_dict)
+        if result is not None:
+            try:
+                razorpay_client.payment.capture(payment_id, str(int(checkout_amount)))
+                return redirect('order-placed')
+            except:
+                print(razorpay_client)
+                return HttpResponse(str(checkout_amount)+ ' ' + str(payment_id)+ ' ' + str(razorpay_client == None)+ ' ' + str(result))
+        return HttpResponse("Not done")

@@ -19,6 +19,7 @@
       </div>
       <div class="payment">
           <input type="radio" name="payment" id="cod" value="cod"> &nbsp;Cash On Delivery
+          <input type="radio" name="payment" id="razor" value="razor"> &nbsp;Razorpay
       </div>
       <button type="button" id="order">Place order</button>
       <div class="error" id="error">
@@ -37,6 +38,14 @@
     var a = 'cart';
     var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
     var order = "{% url 'order-placed' %}";
+    var options = {
+      key: "{{ razorpay_merchant_key }}",
+      amount: "{{ razorpay_amount }}",
+      currency: "{{ currency }}",
+      name: "Dj Razorpay",
+      order_id: "{{ razorpay_order_id }}",
+      callback_url: "{{ callback_url }}",
+    };
   </script>
 {% endblock %}
 {% block categories %}
