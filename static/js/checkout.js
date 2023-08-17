@@ -45,7 +45,6 @@ $(document).ready(function(){
                 data:order_dict,
                 success: function(response){
                     if(payment == 'razor'){
-                        console.log(options);
                         var rzp1 = new Razorpay(options);
                         rzp1.open();
                         e.preventDefault();

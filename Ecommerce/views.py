@@ -566,17 +566,23 @@ def order_placed(request):
         user.last_name = lastname
         user.email = email
         user.save()
-        order = Order.objects.create(user_id = request.user.id, PaymentStatus = payment, Address = address)
-        item_list = user_profile.cart.all()
-        for i in item_list:
-            order.order_items.add(i)
-        user_profile.orders.add(order)
-        user_profile.cart.clear()
-        user_profile.save()
+        if payment == 'razor':
+            request.session['address'] = address
+        else:
+            order = Order.objects.create(user_id = request.user.id, PaymentStatus = payment, Address = address)
+            item_list = user_profile.cart.all()
+            for i in item_list:
+                order.order_items.add(i)
+            request.session['recent_order'] = order.id
+            user_profile.orders.add(order)
+            user_profile.save()
         return JsonResponse("added", safe=False, status= 200)
     if request.user.is_authenticated:
         username = request.user.username
+        user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         c, b = get_category_brands()
+        user_profile.cart.clear()
+        user_profile.save()
         title = {
             'title': 'Cart',
             'c': c,
@@ -667,9 +673,21 @@ def paymentHandler(request):
                 params_dict)
         if result is not None:
             try:
-                razorpay_client.payment.capture(payment_id, str(int(checkout_amount)))
-                return redirect('order-placed')
+                global checkout_amount
+                success = razorpay_client.payment.capture(payment_id, str(int(checkout_amount)))
+                if success['captured'] == True:
+                    address = request.session['address']
+                    user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+                    order = Order.objects.create(user_id = request.user.id, PaymentStatus = 'razor', Address = address)
+                    item_list = user_profile.cart.all()
+                    for i in item_list:
+                        order.order_items.add(i)
+                    request.session['recent_order'] = order.id
+                    user_profile.orders.add(order)
+                    user_profile.save()
+                    return redirect('order-placed')
+                else:
+                    return redirect('checkout')
             except:
-                print(razorpay_client)
-                return HttpResponse(str(checkout_amount)+ ' ' + str(payment_id)+ ' ' + str(razorpay_client == None)+ ' ' + str(result))
-        return HttpResponse("Not done")
+                return redirect('checkout')
+        return redirect('checkout')
