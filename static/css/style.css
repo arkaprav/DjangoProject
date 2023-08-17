@@ -276,6 +276,7 @@ span{
     font-size: 18px;
     cursor: pointer;
 }
+
 footer, .last{
     width: 100%;
     position: relative;
@@ -528,7 +529,8 @@ center ul{
 }
 .bill button{
     width: 100%;
-    margin: 10px 0px;
+    margin-top: 10px;
+    margin-bottom: 23px;
 }
 .empty{
     margin: 5px auto;
