@@ -1,16 +1,21 @@
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate
+from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 import razorpay
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
-from products.models import Category, Brand, Product, UserProfile, Items, Order, Favourite
+from products.models import Category, Brand, Product, UserProfile
 from django.db.models import Min, Max
 from django.contrib.auth.forms import UserCreationForm
-from datetime import datetime, timedelta
-import json
+from helpers.payments import PaymentHandler, RazorPayHandler
+from helpers.single_product import get_fav_cart
+from helpers.checkout import getTotalAndKeys, prepareRazorPayClient
+from helpers.cart import handleCartRequest
+from helpers.profile import updateUserInfo, getOrdersAndFavs
+from helpers.authentication import login_req
+from helpers.taxonomy import get_brand, get_category
+from helpers.shop import prepareShopContext, handleShopRequests, getKeysAndFav
+from helpers.home import prepareHomeData
 from django.core.cache import cache
 global checkout_amount
 razorpay_client = razorpay.Client(
@@ -30,97 +35,36 @@ def get_category_brands():
         cache.set('brands', b, 3600)
         br =  cache.get('brands')
     return cat, br
-def prepare_results(request):
-    results = list(Product.objects.all().values())
-    keys, fav = item_list(request)
-    for i in range(len(results)):
-        results[i]['cart'] = 0
-        results[i]['fav'] = 0
-        if results[i]['id'] in keys:
-            results[i]['cart'] = 1
-        if results[i]['id'] in fav:
-            results[i]['fav'] = 1
-        category = list(Category.objects.filter(id__exact = results[i]['category_id']).values_list()[0])
-        results[i]['category'] = category[1]
-        brand = list(Brand.objects.filter(id__exact = results[i]['brand_id']).values_list()[0])
-        results[i]['brand'] = brand[1]
-    return results
-def item_list(request):
-    try:
-        user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
-    except:
-        user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-    item_list = user_profile.cart.all()
-    fav_items = user_profile.favourites.all()
-    keys = []
-    fav = []
-    if len(item_list) != 0:
-        for i in item_list:
-            keys.append(i.item_id)
-    if len(fav_items) != 0:
-        for i in fav_items:
-            fav.append(i.favourite_id)
-    return keys, fav
+
+
 def home(request):
-    def login1():
-        login = 1
-        keys, fav = item_list(request)
-        title = {
-            'title': 'Home',
-            'c': c,
-            'p': p,
-            'b': b,
-            'p_center':p_center,
-            'c_center':c_center,
-            'b_center':b_center,
-            'login': login,
-            'cart_items':keys,
-            'fav_items':fav,
-            'media_link':settings.MEDIA_URL
-        }
-        return render(request,'index.html',context=title)
-    def login0():
-        request.session['previous_url'] = request.get_full_path()
-        login = 0
-        title = {
-            'title': 'Home',
-            'c': c,
-            'p': p,
-            'b': b,
-            'p_center':p_center,
-            'c_center':c_center,
-            'b_center':b_center,
-            'login': login,
-            'media_link':settings.MEDIA_URL
-        }
-        return render(request,'index.html',context=title)
-    p_center = 0
-    c_center = 0
-    b_center = 0
-    login = 0
     c, b = get_category_brands()
     p = Product.objects.all().order_by('-rating')
-    if len(list(p.values())) > 3:
-        p_center = 1
-    if len(list(c.values())) > 3:
-        c_center = 1
-    if len(list(b.values())) > 3:
-        b_center = 1
     if request.user.is_authenticated:
-        return login1()
-        
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
+        except:
+            user_profile = None
+        title = prepareHomeData(user_profile, c, p, b, 1)
     elif request.COOKIES:
         user_id = request.COOKIES.get('user_id')
         if user_id:
             user = User.objects.get(pk=user_id)
             if user:
                 login(request, user)
-                return login1()
-        return login0()
-                
+                try:
+                    user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
+                except:
+                    user_profile = None
+                title = prepareHomeData(user_profile, c, p, b, 1)
+            else:
+                title = prepareHomeData(user_profile, c, p, b, 0)
+        else:
+            title = prepareHomeData(user_profile, c, p, b, 0)
     else:
         request.session['previous_url'] = request.get_full_path()
-        return login0()
+        title = prepareHomeData(user_profile, c, p, b, 0)
+    return render(request,'index.html',context=title)
 def contact(request):
     c, b = get_category_brands()
     title = {
@@ -134,21 +78,11 @@ def shop(request):
     def login1():
         login = 1
         p = Product.objects.all()
-        min_value = Product.objects.aggregate(Min('price'))['price__min']
-        max_value = Product.objects.aggregate(Max('price'))['price__max']
-        keys, fav = item_list(request)
-        title = {
-            'title': 'Shop',
-            'c': c,
-            'p': p,
-            'b': b,
-            'min': int(min_value),
-            'max': int(max_value),
-            'login': login,
-            'cart_items':keys,
-            'fav_items':fav,
-            'media_link':settings.MEDIA_URL
-        }
+        try:
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
+        except:
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
+        title = prepareShopContext(user_profile, c, b, p, login)
         return render(request,'shop.html',context=title)
     def login0():
         request.session['previous_url'] = request.get_full_path()
@@ -168,30 +102,13 @@ def shop(request):
         }
         return render(request,'shop.html',context=title)     
     if request.method == 'POST':
-        price = request.POST.get('price',0)
-        brands = request.POST.getlist('brands[]')
-        categories = request.POST.getlist('categories[]')
-        results = prepare_results(request)
-        if price != 0:
-            answer = []
-            for i in range(len(results)):
-                if categories != []:
-                    if results[i]['category'] in categories:
-                        if brands != []:
-                            if results[i]['brand'] in brands:
-                                if results[i]['price'] <= float(price):
-                                    answer.append(results[i])
-                        else:
-                            if results[i]['price'] <= float(price):
-                                    answer.append(results[i])
-                elif brands != []:
-                    if results[i]['brand'] in brands:
-                        if results[i]['price'] <= float(price):
-                                answer.append(results[i])
-                else:
-                    if results[i]['price'] <= float(price):
-                        answer.append(results[i])
-            return JsonResponse(list(answer),safe=False, status=200) 
+        user_profile = None
+        if request.user.is_authenticated:
+            try:
+                user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
+            except:
+                user_profile = None
+        return handleShopRequests(request, user_profile)
     if request.user.is_authenticated:
         return login1()
     elif request.COOKIES:
@@ -206,61 +123,17 @@ def shop(request):
         return login0()   
 def taxonomy(request, taxonomy_slug):
     c, b = get_category_brands()
-    def get_category(keys,fav, login):
-        post = get_object_or_404(Category, slug=taxonomy_slug)
-        p = Product.objects.filter(category=post)
-        pro = list(p.values())
-        brands  = []
-        for i in range(len(pro)):
-            brands.append(pro[i]['brand_id'])
-        min_value = Product.objects.filter(category=post).aggregate(Min('price'))['price__min']
-        max_value = Product.objects.filter(category=post).aggregate(Max('price'))['price__max']
-        y = Brand.objects.filter(id__in = brands).exclude(num_products=0)
-        title={
-            'title':post,
-            'c': c,
-            'p': p,
-            'b': b,
-            'y': y,
-            'login': login,
-            'min': int(min_value),
-            'max': int(max_value),
-            'cart_items':keys,
-            'fav_items':fav,
-            'media_link':settings.MEDIA_URL
-        }
-        return title
-    def get_brand(keys, fav, login):
-        post = get_object_or_404(Brand, slug=taxonomy_slug)
-        p = Product.objects.filter(brand=post)
-        pro = list(p.values())
-        cats  = []
-        for i in range(len(pro)):
-            cats.append(pro[i]['category_id'])
-        min_value = Product.objects.filter(brand=post).aggregate(Min('price'))['price__min']
-        max_value = Product.objects.filter(brand=post).aggregate(Max('price'))['price__max']
-        x = Category.objects.filter(id__in = cats).exclude(num_products=0)
-        title={
-            'title':post,
-            'c': c,
-            'p': p,
-            'b': b,
-            'x': x,
-            'login': login,
-            'min': int(min_value),
-            'max': int(max_value),
-            'cart_items':keys,
-            'fav_items':fav,
-            'media_link':settings.MEDIA_URL
-        }
-        return title
     def login1():
         login = 1
-        keys, fav = item_list(request)
         try:
-            title = get_category(keys, fav, login)
+            user_profile = UserProfile.objects.get(user_id=request.user.id, username=request.username)
         except:
-            title = get_brand(keys, fav, login)
+            user_profile = None
+        keys, fav = getKeysAndFav(user_profile)
+        try:
+            title = get_category(keys, fav, login, taxonomy_slug, c, b)
+        except:
+            title = get_brand(keys, fav, login, taxonomy_slug, c, b)
         return render(request, 'taxonomy.html', context=title)
     def login0():
         request.session['previous_url'] = request.get_full_path()
@@ -268,9 +141,9 @@ def taxonomy(request, taxonomy_slug):
         keys = []
         fav = []
         try:
-            title = get_category(keys, fav, login)
+            title = get_category(keys, fav, login, taxonomy_slug, c, b)
         except:
-            title = get_brand(keys, fav, login)
+            title = get_brand(keys, fav, login, taxonomy_slug, c, b)
         return render(request, 'taxonomy.html', context=title)
     if request.user.is_authenticated:
         return login1()        
@@ -284,24 +157,6 @@ def taxonomy(request, taxonomy_slug):
         return login0()
     else:
         return login0()
-def login_req(request):
-    username = request.POST.get('username')
-    password = request.POST.get('password1')
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        auth_login(request, user)
-        previous_url = request.session.pop('previous_url', None)
-        if previous_url:
-            response = redirect(previous_url)# Redirect to the user's profile page after successful registration
-            expiration_time = datetime.now() + timedelta(days=30)  
-            response.set_cookie('user_id', user.id, expires=expiration_time)
-            return response
-        else:
-            response = redirect('profile')
-            expiration_time = datetime.now() + timedelta(days=30)  
-            response.set_cookie('user_id', user.id, expires=expiration_time)
-            return response
-    redirect('login')
 def register_user(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -331,74 +186,16 @@ def login(request):
     return render(request, 'login.html', title)
 def profile(request):
     if request.method == 'POST':
-        username = request.POST.get('username', None)
-        firstname = request.POST.get('firstname', None)
-        lastname = request.POST.get('lastname', None)
-        email = request.POST.get('email', None)
         user = User.objects.get(pk=request.user.id)
-        if username != None and username != '':
-            user.username = username
-        if firstname != None and firstname != '':
-            user.first_name = firstname
-        if lastname != None and lastname != '':
-            user.last_name = lastname
-        if email != None and email != '':
-            user.email = email
-        user.save()
-        return JsonResponse('added', safe=False, status=200)
-    def order_items(order):
-        p = list(Product.objects.all().values())
-        orders = []
-        for i in order:
-            data = {
-                'id':i.id,
-                'paymentStatus': i.PaymentStatus,
-                'Status': i.Status,
-                'Date': i.Date
-            }
-            order_items = []
-            order_item_s = i.order_items.all()
-            for j in order_item_s:
-                items = {
-                    'id': j.item_id,
-                    'quantity': j.item_quantity
-                }
-                for k in p:
-                    if j.item_id == k['id']:
-                        items['name'] = k['name']
-                order_items.append(items)
-            data['order_items'] = order_items
-            orders.append(data)
-        return orders
-    def fav_items(favourites):
-        p = list(Product.objects.all().values())
-        favs = []
-        for i in favourites:
-            data = {}
-            for j in p:
-                if i.favourite_id == j['id']:
-                    data['id'] = j['id']
-                    data['price'] = j['price']
-                    data['rating'] = j['rating']
-                    data['pic'] = settings.MEDIA_URL + j['featured_image']
-                    data['name'] = j['name']
-                    data['slug'] = j['slug']
-                    break
-            favs.append(data)
-        return favs
+        updateUserInfo(request,user_profile)
     if request.user.is_authenticated:
-        username = request.user.username
-        userid = request.user.id
-        user = User.objects.get(id = userid)
+        user = User.objects.get(id = request.user.id)
         try:
-            user_profile = UserProfile.objects.get(user_id=userid, user_name=username)
+            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         except:
-            user_profile = UserProfile.objects.create(user_id=userid, user_name=username)
+            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
         c, b = get_category_brands()
-        orders = user_profile.orders.all()
-        order_items = order_items(orders)
-        favourites = user_profile.favourites.all()
-        fav_items = fav_items(favourites)
+        order_items, fav_items = getOrdersAndFavs(user_profile)
         title = {
             'title': 'Profile',
             'c': c,
@@ -406,7 +203,7 @@ def profile(request):
             'orders': order_items,
             'user': user,
             'favourites':fav_items,
-            'username':username
+            'username':request.user.username
         }
         return render(request, 'profile.html', title)
     else:
@@ -421,36 +218,11 @@ def profile(request):
         return redirect('login')
 def cart(request):
     if request.method == 'POST':
-        i = request.POST.get('id', None)
-        add = request.POST.get('dict', None)
-        delete = request.POST.get('delete', None)
-        fav_add = request.POST.get('fav-add', None)
-        fav_del = request.POST.get('fav-del', None)
         try:
             user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         except:
             user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-        if i != None:
-            item = Items.objects.create(item_id = i)
-            user_profile.cart.add(item)
-            return JsonResponse("added Successfully", safe=False, status=200)
-        if add != None:
-            js = json.loads(add)
-            for key, value in js.items():
-                it = Items.objects.get(id=str(key))
-                it.item_quantity = value
-                it.save()
-            return JsonResponse("added", safe=False, status=200)
-        if delete != None:
-            Items.objects.get(id=str(delete)).delete()
-            return JsonResponse("deleted", safe=False, status=200)
-        if fav_add != None:
-            fav = Favourite.objects.create(favourite_id=fav_add)
-            user_profile.favourites.add(fav)
-            return JsonResponse("added", safe=False, status=200)
-        if fav_del != None:
-            Favourite.objects.get(favourite_id=fav_del).delete()
-            return JsonResponse("deleted", safe=False, status=200)
+        return handleCartRequest(request, user_profile)
     if request.user.is_authenticated:
         username = request.user.username
         c, b = get_category_brands()
@@ -460,19 +232,7 @@ def cart(request):
         except:
             user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
         item_list = user_profile.cart.all()
-        total = 0
-        keys = []
-        if len(item_list) != 0:
-            for i in item_list:
-                l = {}
-                l['id'] = i.id
-                l['quantity'] = i.item_quantity
-                for j in p:
-                    if j['id'] == int(i.item_id):
-                        l['name'] = j['name']
-                        l['price'] = int(j['price'])
-                        total += i.item_quantity * l['price']
-                keys.append(l)
+        keys, total = getTotalAndKeys(item_list, p)
         title = {
             'title': 'Cart',
             'c': c,
@@ -500,32 +260,7 @@ def checkout(request):
         user = User.objects.get(username = request.user.username)
         user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
         item_list = user_profile.cart.all()
-        total = 0
-        keys = []
-        if len(item_list) != 0:
-            for i in item_list:
-                l = {}
-                l['id'] = i.id
-                l['quantity'] = i.item_quantity
-                for j in p:
-                    if j['id'] == int(i.item_id):
-                        l['name'] = j['name']
-                        l['price'] = int(j['price'])
-                        total += i.item_quantity * l['price']
-                keys.append(l)
-        currency = 'INR'
-        # Create a Razorpay Order
-        razorpay_order = razorpay_client.order.create(dict(amount=total*100,
-                                                        currency=currency,
-                                                        payment_capture='0'))
-    
-        # order id of newly created order.
-        razorpay_order_id = razorpay_order['id']
-        callback_url = 'paymentHandler/'
-        global checkout_amount
-        checkout_amount = int(total*100)
-        # we need to pass these details to frontend.
-        
+        keys, total = getTotalAndKeys(item_list, p)
         context = {
             'title': 'Checkout',
             'c': c,
@@ -535,11 +270,10 @@ def checkout(request):
             'username':username,
             'user':user
         }
-        context['razorpay_order_id'] = razorpay_order_id
-        context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
-        context['razorpay_amount'] = checkout_amount
-        context['currency'] = currency
-        context['callback_url'] = callback_url
+        global checkout_amount
+        checkout_amount = int(total*100)
+        # we need to pass these details to frontend.
+        context = prepareRazorPayClient(razorpay_client, checkout_amount, context)        
         return render(request, 'checkout.html', context=context)
     else:
         if request.COOKIES:
@@ -553,30 +287,7 @@ def checkout(request):
         return redirect('login')
 def order_placed(request):
     if request.method == "POST":
-        username = request.POST.get('username', None)
-        firstname = request.POST.get('firstname', None)
-        lastname = request.POST.get('lastname', None)
-        email = request.POST.get('email',None)
-        address = request.POST.get('address', None)
-        payment = request.POST.get('payment', None)
-        user = User.objects.get(username = request.user.username)
-        user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
-        user.username = username
-        user.first_name = firstname
-        user.last_name = lastname
-        user.email = email
-        user.save()
-        if payment == 'razor':
-            request.session['address'] = address
-        else:
-            order = Order.objects.create(user_id = request.user.id, PaymentStatus = payment, Address = address)
-            item_list = user_profile.cart.all()
-            for i in item_list:
-                order.order_items.add(i)
-            request.session['recent_order'] = order.id
-            user_profile.orders.add(order)
-            user_profile.save()
-        return JsonResponse("added", safe=False, status= 200)
+        return PaymentHandler(request)
     if request.user.is_authenticated:
         username = request.user.username
         user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
@@ -608,19 +319,7 @@ def single_product(request, product_slug):
     fav = 0
     if request.user.is_authenticated:
         login = 1
-        try:
-            user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
-        except:
-            user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-        item_list = user_profile.cart.all()
-        fav_items = user_profile.favourites.all()
-        for i in item_list:
-            if p.id == i.item_id:
-                cart = 1
-                break
-        for i in fav_items:
-            if p.id == i.favourite_id:
-                fav = 1
+        cart, fav = get_fav_cart(request, p)
     elif request.COOKIES:
         user_id = request.COOKIES.get('user_id', None)
         if user_id:
@@ -628,19 +327,7 @@ def single_product(request, product_slug):
             if user:
                 login = 1
                 auth_login(request, user)
-                try:
-                    user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
-                except:
-                    user_profile = UserProfile.objects.create(user_id=request.user.id, user_name=request.user.username)
-                item_list = user_profile.cart.all()
-                fav_items = user_profile.favourites.all()
-                for i in item_list:
-                    if p.id == i.item_id:
-                        cart = 1
-                        break
-                for i in fav_items:
-                    if p.id == i.favourite_id:
-                        fav = 1
+                cart, fav = get_fav_cart(request, p)
     else:
         request.session['previous_url'] = request.get_full_path()
         login = 0
@@ -660,34 +347,5 @@ def single_product(request, product_slug):
 @csrf_exempt
 def paymentHandler(request):
     if request.method == 'POST':
-        payment_id = request.POST.get('razorpay_payment_id', '')
-        razorpay_order_id = request.POST.get('razorpay_order_id', '')
-        signature = request.POST.get('razorpay_signature', '')
-        params_dict = {
-            'razorpay_order_id': razorpay_order_id,
-            'razorpay_payment_id': payment_id,
-            'razorpay_signature': signature
-        }
         global checkout_amount
-        result = razorpay_client.utility.verify_payment_signature(
-                params_dict)
-        if result is not None:
-            try:
-                global checkout_amount
-                success = razorpay_client.payment.capture(payment_id, str(int(checkout_amount)))
-                if success['captured'] == True:
-                    address = request.session['address']
-                    user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
-                    order = Order.objects.create(user_id = request.user.id, PaymentStatus = 'razor', Address = address)
-                    item_list = user_profile.cart.all()
-                    for i in item_list:
-                        order.order_items.add(i)
-                    request.session['recent_order'] = order.id
-                    user_profile.orders.add(order)
-                    user_profile.save()
-                    return redirect('order-placed')
-                else:
-                    return redirect('checkout')
-            except:
-                return redirect('checkout')
-        return redirect('checkout')
+        return RazorPayHandler(request,razorpay_client, checkout_amount)
