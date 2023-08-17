@@ -65,6 +65,8 @@ def home(request):
         request.session['previous_url'] = request.get_full_path()
         title = prepareHomeData(user_profile, c, p, b, 0)
     return render(request,'index.html',context=title)
+
+
 def contact(request):
     c, b = get_category_brands()
     title = {
@@ -73,6 +75,8 @@ def contact(request):
         'b': b,
     }
     return render(request,'contact.html',context=title)
+
+
 def shop(request):
     c, b = get_category_brands()
     def login1():
