@@ -1,6 +1,7 @@
 from helpers.shop import getKeysAndFav
 from django.conf import settings
 
+#prepare home page data
 def prepareHomeData(user_profile, c, p, b, login):
     keys, fav = getKeysAndFav(user_profile)
     p_center, c_center, b_center = prepareCenters(p, c, b)
@@ -19,6 +20,7 @@ def prepareHomeData(user_profile, c, p, b, login):
     }
     return title
 
+#prepare the courosal
 def prepareCenters(p, c, b):
     p_center = 0
     c_center = 0

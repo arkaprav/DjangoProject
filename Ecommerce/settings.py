@@ -38,9 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'products',
+    
+    #third party apps
     'macros',
-    'helpers'
+    'razorpay',
+    
+    #custom apps
+    'products',
+    'helpers',
 ]
 
 MIDDLEWARE = [
@@ -131,11 +136,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#path tot staticfiles
 STATICFILES_DIRS = [
     BASE_DIR, 'static'
 ]
+
+#path to media file
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
+#url for finding media
 MEDIA_URL = "/media/"
 
+#razorpay Info
 RAZOR_KEY_ID = 'rzp_test_20sCwEVYzWmpyV'
 RAZOR_KEY_SECRET = 'GsYbDyEu1cA1Qnje17xUhMGy'

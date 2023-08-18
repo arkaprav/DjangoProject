@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.conf import settings
+
 #updates user info
 def updateUserInfo(request, user):
     username = request.POST.get('username', None)
@@ -17,7 +18,7 @@ def updateUserInfo(request, user):
     user.save()
     return JsonResponse('added', safe=False, status=200)
 
-
+#get orders and fav items of the user
 def getOrdersAndFavs(user_profile, p):
     orders = user_profile.orders.all()
     order_items = get_order_items(orders, p)

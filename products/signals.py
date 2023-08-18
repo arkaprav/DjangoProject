@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from .models import Product
 from django.core.cache import cache
 
+#handles the insert or update database request
 @receiver(post_save, sender=Product)
 def update_num_products(sender, instance, created, **kwargs):
     instance.category.num_products = Product.objects.filter(category=instance.category).count()
@@ -11,6 +12,8 @@ def update_num_products(sender, instance, created, **kwargs):
     instance.brand.save()
     cache.delete('categories')
     cache.delete('brands')
+
+#handles the delete database request
 @receiver(post_delete, sender=Product)
 def update_num_products(sender, instance, **kwargs):
     instance.category.num_products = Product.objects.filter(category=instance.category).count()

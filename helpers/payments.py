@@ -49,28 +49,19 @@ def PaymentHandler(request):
 
 #handles Razor Pay Payment requests and create orders on success
 def RazorPayHandler(request, razorpay_client, checkout_amount):
-    print("GETTING PARAMS DICT ...")
     params_dict, payment_id = RazorPayParams(request)
-    print("GETTING SIGNATURE VERIFICATION ...")
     result = razorpay_client.utility.verify_payment_signature(
             params_dict)
     if result is not None:
         try:
-            print("CAPTURIND PAYMENT ...")
             success = razorpay_client.payment.capture(payment_id, str(int(checkout_amount)))
             if success['captured'] == True:
-                print("GETTING ADDRESS ...")
                 address = request.session['address']
-                print("GETTING USER PROFILE ...")
                 user_profile = UserProfile.objects.get(user_id=request.user.id, user_name=request.user.username)
-                print("CREATING ORDER ...")
                 create_order(request, 'razor', address, user_profile)
                 return redirect('order-placed')
             else:
-                print("ELSE ...")
                 return redirect('checkout')
         except:
-            print("EXCEPTION OCCURED ...")
             return redirect('checkout')
-    print("RESULT IS NONE ...")
     return redirect('checkout')

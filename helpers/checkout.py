@@ -1,5 +1,6 @@
 from django.conf import settings
 
+#gets the total amount and items list 
 def getTotalAndKeys(item_list, p):
     total = 0
     keys = []
@@ -16,6 +17,7 @@ def getTotalAndKeys(item_list, p):
             keys.append(l)
     return keys, total
 
+#prepare the details for connecting razorpay using javascript
 def prepareRazorPayClient(razorpay_client, checkout_amount, context):
     currency = 'INR'
     # Create a Razorpay Order

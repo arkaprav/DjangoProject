@@ -18,6 +18,7 @@ def getKeysAndFav(user_profile):
                 fav.append(i.favourite_id)
     return keys, fav
 
+#prepare data to show on the page
 def prepareShopContext(user_profile, c, p, b, login):
     min_value = Product.objects.aggregate(Min('price'))['price__min']
     max_value = Product.objects.aggregate(Max('price'))['price__max']
@@ -36,6 +37,7 @@ def prepareShopContext(user_profile, c, p, b, login):
     }
     return title
 
+#handles the filter request coming tot '/shop/'
 def handleShopRequests(request, user_profile=None):
     price = request.POST.get('price',0)
     brands = request.POST.getlist('brands[]')
@@ -61,7 +63,8 @@ def handleShopRequests(request, user_profile=None):
                 if results[i]['price'] <= float(price):
                     answer.append(results[i])
         return JsonResponse(list(answer),safe=False, status=200)
-    
+
+#prepares the filtered data    
 def prepare_results(user_profile=None):
     results = list(Product.objects.all().values())
     keys, fav = getKeysAndFav(user_profile)

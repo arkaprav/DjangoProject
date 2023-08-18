@@ -2,6 +2,8 @@ from django.contrib.auth import authenticate
 from datetime import datetime, timedelta
 from django.contrib.auth import login as auth_login
 from django.shortcuts import redirect
+
+
 #handles login requests 
 def login_req(request):
     username = request.POST.get('username')

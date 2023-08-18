@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 import json
 
 # Create your models here.
+
+#product categories
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True, db_index=True)
     description = models.TextField()
@@ -14,7 +16,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
     
-
+#product brands
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True, db_index=True)
     description = models.TextField()
@@ -25,7 +27,7 @@ class Brand(models.Model):
     def __str__(self):
         return self.name
     
-
+#products
 class Product(models.Model):
     name            = models.CharField(max_length=100, db_index=True)
     description     = models.TextField()
@@ -38,11 +40,12 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
+#single cart,order or favourite items
 class Items(models.Model):
     item_id = models.IntegerField(db_index=True)
     item_quantity = models.IntegerField(default=1)
 
+#holds all orders
 class Order(models.Model):
     user_id = models.IntegerField()
     order_items =  models.ManyToManyField(Items, blank = True)
@@ -58,9 +61,11 @@ class Order(models.Model):
     def get_order_items(self):
         return ','.join([json.dumps({p.item_id: p.item_quantity})  for p in self.order_items.all()])
 
+#sinfle favourite product
 class Favourite(models.Model):
     favourite_id = models.IntegerField(db_index=True)
 
+#user's profileto get cart, order and favourites data
 class UserProfile(models.Model):
     user_id     = models.IntegerField(db_index=True)
     user_name   = models.CharField(max_length=50)
